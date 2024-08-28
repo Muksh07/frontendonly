@@ -1,0 +1,123 @@
+- Solution Name: ToDoListApp
+   - Root Folder: ToDoListApp
+   - Project Path: ToDoListApp/ToDoListApp
+   - File Name: ToDoListApp.sln
+   
+   - Project Name: ToDoListApp
+   - Project Path: ToDoListApp/ToDoListApp
+     - File Name: Task.cs
+       - Coding Language: C#
+       - Technology Stack: .NET Core
+       - File Purpose and Context: Define the Task model
+       - Methods:
+         - Method Name: Validate
+           - Purpose: Validate task data
+           - Parameters: None
+           - Output: Boolean
+       - Data Validation: Ensure Title, Description are within character limits
+       - Error Handling: Return validation errors
+       - Logging: Log validation process
+       - Interactions and Dependencies: N/A
+       - Integration Points: N/A
+     - File Name: User.cs
+       - Coding Language: C#
+       - Technology Stack: .NET Core
+       - File Purpose and Context: Define the User model
+       - Methods:
+         - Method Name: Validate
+           - Purpose: Validate user data
+           - Parameters: None
+           - Output: Boolean
+       - Data Validation: Ensure username and password meet criteria
+       - Error Handling: Return validation errors
+       - Logging: Log validation process
+       - Interactions and Dependencies: N/A
+       - Integration Points: N/A
+     - File Name: TaskRepository.cs
+       - Coding Language: C#
+       - Technology Stack: .NET Core, Entity Framework Core
+       - File Purpose and Context: Handle database operations for tasks
+       - Methods:
+         - Method Name: CreateTask
+           - Purpose: Add a new task
+           - Parameters: Task task
+           - Output: Void
+         - Method Name: GetTasks
+           - Purpose: Retrieve tasks
+           - Parameters: None
+           - Output: List<Task>
+         - Method Name: UpdateTask
+           - Purpose: Update a task
+           - Parameters: Task task
+           - Output: Void
+         - Method Name: DeleteTask
+           - Purpose: Delete a task
+           - Parameters: int taskId
+           - Output: Void
+       - Data Validation: Validate task data before database operations
+       - Error Handling: Handle database errors
+       - Logging: Log database operations
+       - Interactions and Dependencies: Entity Framework Core
+       - Integration Points: SQL Server
+     - File Name: UserRepository.cs
+       - Coding Language: C#
+       - Technology Stack: .NET Core, Entity Framework Core
+       - File Purpose and Context: Handle database operations for users
+       - Methods:
+         - Method Name: CreateUser
+           - Purpose: Add a new user
+           - Parameters: User user
+           - Output: Void
+         - Method Name: GetUser
+           - Purpose: Retrieve user by username
+           - Parameters: string username
+           - Output: User
+       - Data Validation: Validate user data before database operations
+       - Error Handling: Handle database errors
+       - Logging: Log database operations
+       - Interactions and Dependencies: Entity Framework Core
+       - Integration Points: SQL Server
+     - File Name: TaskService.cs
+       - Coding Language: C#
+       - Technology Stack: .NET Core
+       - File Purpose and Context: Implement business logic for tasks
+       - Methods:
+         - Method Name: CreateTask
+           - Purpose: Add a new task
+           - Parameters: Task task
+           - Output: Void
+         - Method Name: GetTasks
+           - Purpose: Retrieve tasks
+           - Parameters: None
+           - Output: List<Task>
+         - Method Name: UpdateTask
+           - Purpose: Update a task
+           - Parameters: Task task
+           - Output: Void
+         - Method Name: DeleteTask
+           - Purpose: Delete a task
+           - Parameters: int taskId
+           - Output: Void
+       - Data Validation: Validate task data before business operations
+       - Error Handling: Handle business logic errors
+       - Logging: Log business operations
+       - Interactions and Dependencies: TaskRepository
+       - Integration Points: N/A
+     - File Name: UserService.cs
+       - Coding Language: C#
+       - Technology Stack: .NET Core
+       - File Purpose and Context: Implement business logic for users
+       - Methods:
+         - Method Name: CreateUser
+           - Purpose: Add a new user
+           - Parameters: User user
+           - Output: Void
+         - Method Name: AuthenticateUser
+           - Purpose: Authenticate a user
+           - Parameters: string username, string password
+           - Output: Boolean
+       - Data Validation: Validate user data before business operations
+       - Error Handling: Handle business logic errors
+       - Logging: Log business operations
+       - Interactions and Dependencies: UserRepository
+       - Integration Points: Authentication Service
