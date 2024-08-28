@@ -176,8 +176,8 @@ uploadBRD() {
           this.commonFunctionalities = response["commonFunctionalities"];
           this.projectStructure = response["projectStructure"];
 
-          //console.log(this.projectStructure);
-         // this.fetchFolderStructure(this.projectStructure);
+          console.log("json", this.projectStructure);
+         //this.fetchFolderStructure(this.projectStructure);
           //this.parsedStructure =  this.parseProjectStructure(this.projectStructure);
           //console.log('Blueprinting response:', response);
           // Handle the response here
@@ -307,129 +307,15 @@ uploadBRD() {
 
   fetchFolderStructure() 
   {
-    const solutionStructureText = `- Solution Name: ToDoListApp
-   - Root Folder: ToDoListApp
-   - Project Path: ToDoListApp/ToDoListApp
-   - File Name: ToDoListApp.sln
-   
-   - Project Name: ToDoListApp
-   - Project Path: ToDoListApp/ToDoListApp
-     - File Name: Task.cs
-       - Coding Language: C#
-       - Technology Stack: .NET Core
-       - File Purpose and Context: Define the Task model
-       - Methods:
-         - Method Name: Validate
-           - Purpose: Validate task data
-           - Parameters: None
-           - Output: Boolean
-       - Data Validation: Ensure Title, Description are within character limits
-       - Error Handling: Return validation errors
-       - Logging: Log validation process
-       - Interactions and Dependencies: N/A
-       - Integration Points: N/A
-     - File Name: User.cs
-       - Coding Language: C#
-       - Technology Stack: .NET Core
-       - File Purpose and Context: Define the User model
-       - Methods:
-         - Method Name: Validate
-           - Purpose: Validate user data
-           - Parameters: None
-           - Output: Boolean
-       - Data Validation: Ensure username and password meet criteria
-       - Error Handling: Return validation errors
-       - Logging: Log validation process
-       - Interactions and Dependencies: N/A
-       - Integration Points: N/A
-     - File Name: TaskRepository.cs
-       - Coding Language: C#
-       - Technology Stack: .NET Core, Entity Framework Core
-       - File Purpose and Context: Handle database operations for tasks
-       - Methods:
-         - Method Name: CreateTask
-           - Purpose: Add a new task
-           - Parameters: Task task
-           - Output: Void
-         - Method Name: GetTasks
-           - Purpose: Retrieve tasks
-           - Parameters: None
-           - Output: List<Task>
-         - Method Name: UpdateTask
-           - Purpose: Update a task
-           - Parameters: Task task
-           - Output: Void
-         - Method Name: DeleteTask
-           - Purpose: Delete a task
-           - Parameters: int taskId
-           - Output: Void
-       - Data Validation: Validate task data before database operations
-       - Error Handling: Handle database errors
-       - Logging: Log database operations
-       - Interactions and Dependencies: Entity Framework Core
-       - Integration Points: SQL Server
-     - File Name: UserRepository.cs
-       - Coding Language: C#
-       - Technology Stack: .NET Core, Entity Framework Core
-       - File Purpose and Context: Handle database operations for users
-       - Methods:
-         - Method Name: CreateUser
-           - Purpose: Add a new user
-           - Parameters: User user
-           - Output: Void
-         - Method Name: GetUser
-           - Purpose: Retrieve user by username
-           - Parameters: string username
-           - Output: User
-       - Data Validation: Validate user data before database operations
-       - Error Handling: Handle database errors
-       - Logging: Log database operations
-       - Interactions and Dependencies: Entity Framework Core
-       - Integration Points: SQL Server
-     - File Name: TaskService.cs
-       - Coding Language: C#
-       - Technology Stack: .NET Core
-       - File Purpose and Context: Implement business logic for tasks
-       - Methods:
-         - Method Name: CreateTask
-           - Purpose: Add a new task
-           - Parameters: Task task
-           - Output: Void
-         - Method Name: GetTasks
-           - Purpose: Retrieve tasks
-           - Parameters: None
-           - Output: List<Task>
-         - Method Name: UpdateTask
-           - Purpose: Update a task
-           - Parameters: Task task
-           - Output: Void
-         - Method Name: DeleteTask
-           - Purpose: Delete a task
-           - Parameters: int taskId
-           - Output: Void
-       - Data Validation: Validate task data before business operations
-       - Error Handling: Handle business logic errors
-       - Logging: Log business operations
-       - Interactions and Dependencies: TaskRepository
-       - Integration Points: N/A
-     - File Name: UserService.cs
-       - Coding Language: C#
-       - Technology Stack: .NET Core
-       - File Purpose and Context: Implement business logic for users
-       - Methods:
-         - Method Name: CreateUser
-           - Purpose: Add a new user
-           - Parameters: User user
-           - Output: Void
-         - Method Name: AuthenticateUser
-           - Purpose: Authenticate a user
-           - Parameters: string username, string password
-           - Output: Boolean
-       - Data Validation: Validate user data before business operations
-       - Error Handling: Handle business logic errors
-       - Logging: Log business operations
-       - Interactions and Dependencies: UserRepository
-       - Integration Points: Authentication Service`;
+    const solutionStructureText = `Solution Name: ToDoListSolution
+Root Folder: ToDoListApp
+Project Name: ToDoListProject
+Project Path: ToDoListApp/ToDoListProject
+File Name: MainForm.cs (C#, Windows Forms, Main UI Form for task management, Methods: InitializeComponents, CreateTask, EditTask, DeleteTask, Data Validation: Check for null or empty fields, Error Handling: Try-catch blocks for UI actions, Logging: Log user actions, Interactions and Dependencies: Depends on backend services, Integration Points: None)
+File Name: TaskRepository.cs (C#, .NET Core, Handles CRUD operations for tasks, Methods: AddTask, GetTasks, UpdateTask, DeleteTask, Data Validation: Ensure data integrity, Error Handling: Handle database exceptions, Logging: Log database operations, Interactions and Dependencies: Depends on Entity Framework Core, Integration Points: SQL Server)
+File Name: UserRepository.cs (C#, .NET Core, Manages user authentication data, Methods: AddUser, GetUser, ValidateUser, Data Validation: Ensure valid user data, Error Handling: Handle database exceptions, Logging: Log user operations, Interactions and Dependencies: Depends on Entity Framework Core, Integration Points: SQL Server)
+File Name: AuthenticationService.cs (C#, .NET Core, Manages user authentication and session, Methods: Login, Logout, Register, Data Validation: Validate user credentials, Error Handling: Handle authentication errors, Logging: Log authentication attempts, Interactions and Dependencies: Depends on UserRepository, Integration Points: None)
+File Name: Program.cs (C#, .NET Core, Entry point of the application, Methods: Main, Data Validation: None, Error Handling: Handle application startup errors, Logging: Log application start and end, Interactions and Dependencies: Depends on MainForm, Integration Points: None)`;
     //console.log("Text",solutionStructureText);
   
     this.folderStructure = this.parseSolutionStructure(solutionStructureText);
@@ -439,29 +325,44 @@ uploadBRD() {
  
   parseSolutionStructure(text: string): any[] {
     const lines = text.split('\n');
+    console.log("text", text);
     const rootFolderStack: any[] = [];
     let currentFolder: any = null;
     let currentProject: any = null;
     let currentFile: any = null;
- 
+    let currentMethod: any = null;
+  
     lines.forEach(line => {
       line = line.trim();
- 
+  
+      // Remove leading '-' and extra spaces
+      line = line.replace(/^-+\s*/, '');
+      console.log("line",line);
+      // Console logging for debugging
+      console.log(`Parsing line: "${line}"`);
+  
       if (line.startsWith('Solution Name:')) {
         const name = line.replace('Solution Name:', '').trim();
         currentFolder = { name, type: 'folder', children: [] };
         rootFolderStack.push(currentFolder);
+        console.log('Added root folder:', currentFolder);
       } else if (line.startsWith('Root Folder:')) {
         const name = line.replace('Root Folder:', '').trim();
         const rootFolder = { name, type: 'folder', children: [] };
         rootFolderStack.push(rootFolder);
         currentFolder = rootFolder;
+        console.log('Updated root folder:', currentFolder);
+      } else if (line.startsWith('Project Path:')) {
+        // Skip the project path line
+        console.log('Skipping Project Path line');
+        return;
       } else if (line.startsWith('Project Name:')) {
         const name = line.replace('Project Name:', '').trim();
         const projectFolder = { name, type: 'folder', children: [] };
         if (currentFolder) {
           currentFolder.children.push(projectFolder);
           currentProject = projectFolder;
+          console.log('Added project folder:', projectFolder);
         }
       } else if (line.startsWith('File Name:')) {
         const name = line.replace('File Name:', '').trim();
@@ -469,37 +370,61 @@ uploadBRD() {
           currentProject.children = currentProject.children || [];
           currentFile = { name, type: 'file', details: {} };
           currentProject.children.push(currentFile);
+          console.log('Added file:', currentFile);
         }
       } else if (line.startsWith('Coding Language:') && currentFile) {
         currentFile.details['Coding Language'] = line.replace('Coding Language:', '').trim();
+        console.log('Added Coding Language to file:', currentFile);
       } else if (line.startsWith('Technology Stack:') && currentFile) {
         currentFile.details['Technology Stack'] = line.replace('Technology Stack:', '').trim();
+        console.log('Added Technology Stack to file:', currentFile);
       } else if (line.startsWith('File Purpose and Context:') && currentFile) {
         currentFile.details['File Purpose and Context'] = line.replace('File Purpose and Context:', '').trim();
+        console.log('Added File Purpose and Context to file:', currentFile);
       } else if (line.startsWith('Methods:') && currentFile) {
         currentFile.details['Methods'] = [];
-        let methodLine = line.replace('Methods:', '').trim();
-        if (methodLine) {
-          currentFile.details['Methods'].push(methodLine);
+        console.log('Starting Methods section for file:', currentFile);
+      } else if (line.startsWith('Method Name:') && currentFile) {
+        const methodName = line.replace('Method Name:', '').trim();
+        currentMethod = { name: methodName, details: {} };
+        if (currentFile) {
+          currentFile.details['Methods'] = currentFile.details['Methods'] || [];
+          currentFile.details['Methods'].push(currentMethod);
+          console.log('Added method:', currentMethod);
         }
-      } else if (line.startsWith('-') && currentFile) {
-        const method = line.replace('-', '').trim();
-        if (currentFile.details['Methods']) {
-          currentFile.details['Methods'].push(method);
-        }
+      } else if (line.startsWith('Purpose:') && currentMethod) {
+        const purpose = line.replace('Purpose:', '').trim();
+        currentMethod.details['Purpose'] = purpose;
+        console.log('Added Purpose to method:', currentMethod);
+      } else if (line.startsWith('Parameters:') && currentMethod) {
+        const parameters = line.replace('Parameters:', '').trim();
+        currentMethod.details['Parameters'] = parameters;
+        console.log('Added Parameters to method:', currentMethod);
+      } else if (line.startsWith('Output:') && currentMethod) {
+        const output = line.replace('Output:', '').trim();
+        currentMethod.details['Output'] = output;
+        console.log('Added Output to method:', currentMethod);
       } else if (line.startsWith('Data Validation:') && currentFile) {
         currentFile.details['Data Validation'] = line.replace('Data Validation:', '').trim();
+        console.log('Added Data Validation to file:', currentFile);
       } else if (line.startsWith('Error Handling:') && currentFile) {
         currentFile.details['Error Handling'] = line.replace('Error Handling:', '').trim();
+        console.log('Added Error Handling to file:', currentFile);
       } else if (line.startsWith('Logging:') && currentFile) {
         currentFile.details['Logging'] = line.replace('Logging:', '').trim();
+        console.log('Added Logging to file:', currentFile);
       } else if (line.startsWith('Interactions and Dependencies:') && currentFile) {
         currentFile.details['Interactions and Dependencies'] = line.replace('Interactions and Dependencies:', '').trim();
+        console.log('Added Interactions and Dependencies to file:', currentFile);
       } else if (line.startsWith('Integration Points:') && currentFile) {
         currentFile.details['Integration Points'] = line.replace('Integration Points:', '').trim();
+        console.log('Added Integration Points to file:', currentFile);
+      } else {
+        console.log('Unhandled line:', line);
       }
     });
- 
+  
+    console.log('Parsed structure:', JSON.stringify(rootFolderStack, null, 2)); // Log final structure
     return rootFolderStack;
   }
  
