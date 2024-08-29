@@ -106,18 +106,14 @@
           <h4>Project Structure Description</h4>
           <textarea [(ngModel)]="projectStructureDescription" class="full-width-textarea"></textarea>
         </div>
-
+     
         <div class="folder-structure-section">
           <h4>Folder Structure</h4>
           <div class="folder-tree">
-            <ng-container *ngTemplateOutlet="
-                folderTemplate;
-                context: { $implicit: folderStructure, level: 0 }
-              "></ng-container>
+            <ng-container *ngTemplateOutlet="folderTemplate; context: { $implicit: folderStructure, level: 0 }"></ng-container>
           </div>
         </div>
-
-
+     
         <ng-template #folderTemplate let-items let-level="level">
           <ul>
             <li *ngFor="let item of items; let last = last" [class.last-child]="last">
@@ -126,27 +122,20 @@
                   {{ item.expanded ? "[-]" : "[+]" }}
                 </span>
                 <span *ngIf="item.type === 'file'" class="file-icon">&#9679;</span>
-                <span (click)="
-                    item.type === 'file'
-                      ? fetchFileContent(item.name)
-                      : toggleFolder(item)
-                  ">
-                  {{ item.name }}
+                <span (click)="item.type === 'file' ? showFileContent(item) : toggleFolder(item)">
+    {{ item.name }}
                 </span>
               </div>
               <ng-container *ngIf="item.type === 'folder' && item.expanded">
-                <ng-container *ngTemplateOutlet="
-                    folderTemplate;
-                    context: { $implicit: item.children, level: level + 1 }
-                  "></ng-container>
+                <ng-container *ngTemplateOutlet="folderTemplate; context: { $implicit: item.children, level: level + 1 }"></ng-container>
               </ng-container>
             </li>
           </ul>
         </ng-template>
-
+     
         <div class="file-content-section">
           <h4>File Content</h4>
-          <textarea [(ngModel)]="selectedFileContent" class="full-width-textarea"></textarea>
+          <textarea [(ngModel)]="selectedFileContent" class="full-width-textarea" readonly></textarea>
         </div>
       </div>
     </div>
