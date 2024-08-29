@@ -204,3 +204,157 @@ error handling: none
 logging: none
 interactions and dependencies: none
 integration points: none
+
+
+
+
+
+...............................................................................
+fetchFolderStructure() {
+    this.folderStructure = [
+      {
+        name: 'todolistapp',
+        type: 'folder',
+        expanded: false,
+        children: [
+          {
+            name: 'frontend',
+            type: 'folder',
+            expanded: false,
+            children: [
+              { name: 'logintodo.cs', type: 'file' },
+              { name: 'taskcreationform.cs', type: 'file' },
+              { name: 'tasklistingform.cs', type: 'file' },
+              { name: 'taskeditform.cs', type: 'file' }
+            ]
+          },
+          {
+            name: 'backend',
+            type: 'folder',
+            expanded: false,
+            children: [
+              { name: 'loginservice.cs', type: 'file' },
+              { name: 'taskservicecreation.cs', type: 'file' },
+              { name: 'taskservicelisting.cs', type: 'file' },
+              { name: 'taskserviceedit.cs', type: 'file' }
+            ]
+          },
+          {
+            name: 'dataaccess',
+            type: 'folder',
+            expanded: false,
+            children: [
+              { name: 'applicationdbcontext.cs', type: 'file' },
+              { name: 'taskrepository.cs', type: 'file' },
+              { name: 'userrepository.cs', type: 'file' },
+              { name: 'task.cs', type: 'file' },
+              { name: 'user.cs', type: 'file' }
+            ]
+          }
+        ]
+      }
+    ];
+  }
+....................................................................................
+
+  "solution name: todolistsolution
+   root folder: todolistapp
+   project name: todolistapp
+   project path: todolistapp/todolistapp
+   file name: todolistapp.sln
+     - file name: program.cs
+       - coding language: c#
+       - technology stack: .net core
+       - file purpose and context: entry point of the application
+       - methods: 
+         - main: initializes the application
+           - parameters: none
+           - output: none
+       - data validation: n/a
+       - error handling: basic try-catch for startup issues
+       - logging: basic logging for startup
+       - interactions and dependencies: calls initialization methods
+       - integration points: n/a
+     - file name: taskcontroller.cs
+       - coding language: c#
+       - technology stack: .net core
+       - file purpose and context: handles task-related operations
+       - methods: 
+         - createtask: adds a new task
+           - parameters: task object
+           - output: task id
+         - gettasks: retrieves list of tasks
+           - parameters: none
+           - output: list of tasks
+         - edittask: modifies an existing task
+           - parameters: task id, updated task object
+           - output: success/failure
+         - deletetask: removes a task
+           - parameters: task id
+           - output: success/failure
+       - data validation: validate task object fields
+       - error handling: try-catch blocks with specific error messages
+       - logging: logs actions and errors
+       - interactions and dependencies: interacts with taskservice
+       - integration points: n/a
+     - file name: taskservice.cs
+       - coding language: c#
+       - technology stack: .net core
+       - file purpose and context: contains business logic for task operations
+       - methods: 
+         - addtask: business logic for adding a task
+           - parameters: task object
+           - output: task id
+         - getalltasks: business logic for retrieving tasks
+           - parameters: none
+           - output: list of tasks
+         - updatetask: business logic for updating a task
+           - parameters: task id, updated task object
+           - output: success/failure
+         - removetask: business logic for deleting a task
+           - parameters: task id
+           - output: success/failure
+       - data validation: validate business rules
+       - error handling: try-catch blocks with specific error messages
+       - logging: logs business operations and errors
+       - interactions and dependencies: interacts with taskrepository
+       - integration points: n/a
+     - file name: taskrepository.cs
+       - coding language: c#
+       - technology stack: .net core, entity framework core
+       - file purpose and context: manages database operations for tasks
+       - methods: 
+         - create: adds a task to the database
+           - parameters: task object
+           - output: task id
+         - readall: retrieves tasks from the database
+           - parameters: none
+           - output: list of tasks
+         - update: updates a task in the database
+           - parameters: task object
+           - output: success/failure
+         - delete: deletes a task from the database
+           - parameters: task id
+           - output: success/failure
+       - data validation: entity framework validation
+       - error handling: try-catch blocks with specific error messages
+       - logging: logs database operations and errors
+       - interactions and dependencies: interacts with sql server
+       - integration points: n/a
+     - file name: userauthentication.cs
+       - coding language: c#
+       - technology stack: .net core
+       - file purpose and context: manages user authentication
+       - methods: 
+         - login: authenticates user credentials
+           - parameters: username, password
+           - output: authentication token
+         - register: registers a new user
+           - parameters: username, password
+           - output: success/failure
+       - data validation: validate user credentials
+       - error handling: try-catch blocks with specific error messages
+       - logging: logs authentication attempts and errors
+       - interactions and dependencies: interacts with userrepository
+       - integration points: external authentication service
+  "

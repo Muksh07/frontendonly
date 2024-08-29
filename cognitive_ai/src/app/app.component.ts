@@ -176,7 +176,7 @@ uploadBRD() {
           this.commonFunctionalities = response["commonFunctionalities"];
           this.projectStructure = response["projectStructure"];
 
-          //console.log(this.projectStructure);
+          console.log("projectstructure", this.projectStructure);
          // this.fetchFolderStructure(this.projectStructure);
           //this.parsedStructure =  this.parseProjectStructure(this.projectStructure);
           //console.log('Blueprinting response:', response);
@@ -433,7 +433,7 @@ uploadBRD() {
     //console.log("Text",solutionStructureText);
   
     this.folderStructure = this.parseSolutionStructure(solutionStructureText);
-    console.log(this.folderStructure);
+    //console.log(this.folderStructure);
   }
   
  
