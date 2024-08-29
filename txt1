@@ -1,123 +1,206 @@
-- Solution Name: ToDoListApp
-   - Root Folder: ToDoListApp
-   - Project Path: ToDoListApp/ToDoListApp
-   - File Name: ToDoListApp.sln
-   
-   - Project Name: ToDoListApp
-   - Project Path: ToDoListApp/ToDoListApp
-     - File Name: Task.cs
-       - Coding Language: C#
-       - Technology Stack: .NET Core
-       - File Purpose and Context: Define the Task model
-       - Methods:
-         - Method Name: Validate
-           - Purpose: Validate task data
-           - Parameters: None
-           - Output: Boolean
-       - Data Validation: Ensure Title, Description are within character limits
-       - Error Handling: Return validation errors
-       - Logging: Log validation process
-       - Interactions and Dependencies: N/A
-       - Integration Points: N/A
-     - File Name: User.cs
-       - Coding Language: C#
-       - Technology Stack: .NET Core
-       - File Purpose and Context: Define the User model
-       - Methods:
-         - Method Name: Validate
-           - Purpose: Validate user data
-           - Parameters: None
-           - Output: Boolean
-       - Data Validation: Ensure username and password meet criteria
-       - Error Handling: Return validation errors
-       - Logging: Log validation process
-       - Interactions and Dependencies: N/A
-       - Integration Points: N/A
-     - File Name: TaskRepository.cs
-       - Coding Language: C#
-       - Technology Stack: .NET Core, Entity Framework Core
-       - File Purpose and Context: Handle database operations for tasks
-       - Methods:
-         - Method Name: CreateTask
-           - Purpose: Add a new task
-           - Parameters: Task task
-           - Output: Void
-         - Method Name: GetTasks
-           - Purpose: Retrieve tasks
-           - Parameters: None
-           - Output: List<Task>
-         - Method Name: UpdateTask
-           - Purpose: Update a task
-           - Parameters: Task task
-           - Output: Void
-         - Method Name: DeleteTask
-           - Purpose: Delete a task
-           - Parameters: int taskId
-           - Output: Void
-       - Data Validation: Validate task data before database operations
-       - Error Handling: Handle database errors
-       - Logging: Log database operations
-       - Interactions and Dependencies: Entity Framework Core
-       - Integration Points: SQL Server
-     - File Name: UserRepository.cs
-       - Coding Language: C#
-       - Technology Stack: .NET Core, Entity Framework Core
-       - File Purpose and Context: Handle database operations for users
-       - Methods:
-         - Method Name: CreateUser
-           - Purpose: Add a new user
-           - Parameters: User user
-           - Output: Void
-         - Method Name: GetUser
-           - Purpose: Retrieve user by username
-           - Parameters: string username
-           - Output: User
-       - Data Validation: Validate user data before database operations
-       - Error Handling: Handle database errors
-       - Logging: Log database operations
-       - Interactions and Dependencies: Entity Framework Core
-       - Integration Points: SQL Server
-     - File Name: TaskService.cs
-       - Coding Language: C#
-       - Technology Stack: .NET Core
-       - File Purpose and Context: Implement business logic for tasks
-       - Methods:
-         - Method Name: CreateTask
-           - Purpose: Add a new task
-           - Parameters: Task task
-           - Output: Void
-         - Method Name: GetTasks
-           - Purpose: Retrieve tasks
-           - Parameters: None
-           - Output: List<Task>
-         - Method Name: UpdateTask
-           - Purpose: Update a task
-           - Parameters: Task task
-           - Output: Void
-         - Method Name: DeleteTask
-           - Purpose: Delete a task
-           - Parameters: int taskId
-           - Output: Void
-       - Data Validation: Validate task data before business operations
-       - Error Handling: Handle business logic errors
-       - Logging: Log business operations
-       - Interactions and Dependencies: TaskRepository
-       - Integration Points: N/A
-     - File Name: UserService.cs
-       - Coding Language: C#
-       - Technology Stack: .NET Core
-       - File Purpose and Context: Implement business logic for users
-       - Methods:
-         - Method Name: CreateUser
-           - Purpose: Add a new user
-           - Parameters: User user
-           - Output: Void
-         - Method Name: AuthenticateUser
-           - Purpose: Authenticate a user
-           - Parameters: string username, string password
-           - Output: Boolean
-       - Data Validation: Validate user data before business operations
-       - Error Handling: Handle business logic errors
-       - Logging: Log business operations
-       - Interactions and Dependencies: UserRepository
-       - Integration Points: Authentication Service
+solution name: todoapp
+root folder: todoapp
+project name: frontend
+project path: todoapp/frontend
+file name: logintodo.cs
+coding language: c#
+technology stack: windows forms or wpf
+file purpose and context: form for user authentication
+methods:
+method name: authenticateuser
+purpose: validates user credentials
+parameters as input: string username, string password
+output: bool
+data validation: ensures username and password fields are not empty
+error handling: catches and logs authentication errors
+logging: logs authentication attempts
+interactions and dependencies: interacts with backend.loginservice
+integration points: backend.loginservice
+ 
+file name: taskcreationform.cs
+coding language: c#
+technology stack: windows forms or wpf
+file purpose and context: form for creating new tasks
+methods:
+method name: createtask
+purpose: creates a new task
+parameters as input: string title, string description, string status
+output: bool
+data validation: ensures all task fields are filled
+error handling: catches and logs task creation errors
+logging: logs task creation attempts
+interactions and dependencies: interacts with backend.taskservicecreation
+integration points: backend.taskservicecreation
+ 
+file name: tasklistingform.cs
+coding language: c#
+technology stack: windows forms or wpf
+file purpose and context: form for listing and managing tasks
+methods:
+method name: listtasks
+purpose: retrieves and displays tasks
+parameters as input: none
+output: list<task>
+data validation: none
+error handling: catches and logs retrieval errors
+logging: logs task listing attempts
+interactions and dependencies: interacts with backend.taskservicelisting
+integration points: backend.taskservicelisting
+ 
+file name: taskeditform.cs
+coding language: c#
+technology stack: windows forms or wpf
+file purpose and context: form for editing existing tasks
+methods:
+method name: edittask
+purpose: edits an existing task
+parameters as input: int taskid, string title, string description, string status
+output: bool
+data validation: ensures all task fields are filled
+error handling: catches and logs task editing errors
+logging: logs task editing attempts
+interactions and dependencies: interacts with backend.taskserviceedit
+integration points: backend.taskserviceedit
+ 
+project name: backend
+project path: todoapp/backend
+file name: loginservice.cs
+coding language: c#
+technology stack: .net core or .net framework
+file purpose and context: handles user login validation
+methods:
+method name: validateuser
+purpose: validates user credentials
+parameters as input: string username, string password
+output: bool
+data validation: ensures username and password meet security criteria
+error handling: catches and logs validation errors
+logging: logs validation attempts
+interactions and dependencies: interacts with dataaccess.userrepository
+integration points: dataaccess.userrepository
+ 
+file name: taskservicecreation.cs
+coding language: c#
+technology stack: .net core or .net framework
+file purpose and context: manages task operations for creation
+methods:
+method name: createtask
+purpose: creates a new task
+parameters as input: task task
+output: bool
+data validation: ensures task object is valid
+error handling: catches and logs task creation errors
+logging: logs task creation attempts
+interactions and dependencies: interacts with dataaccess.taskrepository
+integration points: dataaccess.taskrepository
+ 
+file name: taskservicelisting.cs
+coding language: c#
+technology stack: .net core or .net framework
+file purpose and context: manages task operations for listing
+methods:
+method name: listtasks
+purpose: retrieves all tasks
+parameters as input: none
+output: list<task>
+data validation: none
+error handling: catches and logs retrieval errors
+logging: logs task retrieval attempts
+interactions and dependencies: interacts with dataaccess.taskrepository
+integration points: dataaccess.taskrepository
+ 
+file name: taskserviceedit.cs
+coding language: c#
+technology stack: .net core or .net framework
+file purpose and context: manages task operations for editing
+methods:
+method name: edittask
+purpose: edits an existing task
+parameters as input: int taskid, task updatedtask
+output: bool
+data validation: ensures updated task object is valid
+error handling: catches and logs task editing errors
+logging: logs task editing attempts
+interactions and dependencies: interacts with dataaccess.taskrepository
+integration points: dataaccess.taskrepository
+ 
+project name: dataaccess
+project path: todoapp/dataaccess
+file name: applicationdbcontext.cs
+coding language: c#
+technology stack: .net core or .net framework, sql server
+file purpose and context: configures the database context
+methods:
+method name: onmodelcreating
+purpose: configures entity mappings
+parameters as input: modelbuilder modelbuilder
+output: void
+data validation: ensures correct entity mappings
+error handling: catches and logs configuration errors
+logging: logs database context initialization
+interactions and dependencies: interacts with sql server
+integration points: sql server
+ 
+file name: taskrepository.cs
+coding language: c#
+technology stack: .net core or .net framework, sql server
+file purpose and context: handles crud operations for tasks
+methods:
+method name: addtask
+purpose: adds a new task
+parameters as input: task task
+output: bool
+method name: gettasks
+purpose: retrieves all tasks
+parameters as input: none
+output: list<task>
+method name: updatetask
+purpose: updates an existing task
+parameters as input: task task
+output: bool
+data validation: ensures task data integrity
+error handling: catches and logs crud operation errors
+logging: logs crud operations
+interactions and dependencies: interacts with applicationdbcontext
+integration points: applicationdbcontext
+ 
+file name: userrepository.cs
+coding language: c#
+technology stack: .net core or .net framework, sql server
+file purpose and context: manages user-related data like authentication credentials
+methods:
+method name: adduser
+purpose: adds a new user
+parameters as input: user user
+output: bool
+method name: getuser
+purpose: retrieves user by username
+parameters as input: string username
+output: user
+data validation: ensures user data integrity
+error handling: catches and logs user-related errors
+logging: logs user operations
+interactions and dependencies: interacts with applicationdbcontext
+integration points: applicationdbcontext
+ 
+file name: task.cs
+coding language: c#
+technology stack: .net core or .net framework
+file purpose and context: defines the task model
+methods: none
+data validation: ensures task data integrity
+error handling: none
+logging: none
+interactions and dependencies: none
+integration points: none
+ 
+file name: user.cs
+coding language: c#
+technology stack: .net core or .net framework
+file purpose and context: defines the user model
+methods: none
+data validation: ensures user data integrity
+error handling: none
+logging: none
+interactions and dependencies: none
+integration points: none
