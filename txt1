@@ -358,3 +358,180 @@ fetchFolderStructure() {
        - interactions and dependencies: interacts with userrepository
        - integration points: external authentication service
   "
+...................................................................................
+Project name: frontend
+  - File name: logintodo.cs
+    - Class: LoginForm
+      - Method: login
+        - Return type: bool
+        - Parameter: username (string), password (string)
+    - Test scenarios:
+      - Positive scenario: Correct username and password
+        - Expected output: True
+      - Negative scenario: Incorrect username and/or password
+        - Expected output: False
+      - Boundary condition: Empty username or password
+        - Expected output: False
+ 
+  - File name: taskcreationform.cs
+    - Class: TaskCreationForm
+      - Method: createtask
+        - Return type: bool
+        - Parameter: title (string), description (string), status (string)
+    - Test scenarios:
+      - Positive scenario: Valid task details
+        - Expected output: True
+      - Negative scenario: Invalid task details (e.g., empty title)
+        - Expected output: False
+      - Boundary condition: Title length at maximum allowed limit
+        - Expected output: True
+ 
+  - File name: tasklistingform.cs
+    - Class: TaskListingForm
+      - Method: listtasks
+        - Return type: list<task>
+        - Parameter: none
+    - Test scenarios:
+      - Positive scenario: Tasks are present in the database
+        - Expected output: List of tasks
+      - Negative scenario: No tasks in the database
+        - Expected output: Empty list
+      - Boundary condition: Database connection issue
+        - Expected output: Error message
+ 
+  - File name: taskeditform.cs
+    - Class: TaskEditForm
+      - Method: edittask
+        - Return type: bool
+        - Parameter: taskid (int), title (string), description (string), status (string)
+    - Test scenarios:
+      - Positive scenario: Valid task details and existing task ID
+        - Expected output: True
+      - Negative scenario: Invalid task details or non-existing task ID
+        - Expected output: False
+      - Boundary condition: Title length at maximum allowed limit
+        - Expected output: True
+ 
+- Project name: backend
+  - File name: loginservice.cs
+    - Class: LoginService
+      - Method: validateuser
+        - Return type: bool
+        - Parameter: username (string), password (string)
+    - Test scenarios:
+      - Positive scenario: Correct username and password
+        - Expected output: True
+      - Negative scenario: Incorrect username and/or password
+        - Expected output: False
+      - Boundary condition: Empty username or password
+        - Expected output: False
+ 
+  - File name: taskservicecreation.cs
+    - Class: TaskServiceCreation
+      - Method: createtask
+        - Return type: bool
+        - Parameter: title (string), description (string), status (string)
+    - Test scenarios:
+      - Positive scenario: Valid task details
+        - Expected output: True
+      - Negative scenario: Invalid task details (e.g., empty title)
+        - Expected output: False
+      - Boundary condition: Title length at maximum allowed limit
+        - Expected output: True
+ 
+  - File name: taskservicelisting.cs
+    - Class: TaskServiceListing
+      - Method: listtasks
+        - Return type: list<task>
+        - Parameter: none
+    - Test scenarios:
+      - Positive scenario: Tasks are present in the database
+        - Expected output: List of tasks
+      - Negative scenario: No tasks in the database
+        - Expected output: Empty list
+      - Boundary condition: Database connection issue
+        - Expected output: Error message
+ 
+  - File name: taskserviceedit.cs
+    - Class: TaskServiceEdit
+      - Method: edittask
+        - Return type: bool
+        - Parameter: taskid (int), title (string), description (string), status (string)
+    - Test scenarios:
+      - Positive scenario: Valid task details and existing task ID
+        - Expected output: True
+      - Negative scenario: Invalid task details or non-existing task ID
+        - Expected output: False
+      - Boundary condition: Title length at maximum allowed limit
+        - Expected output: True
+ 
+- Project name: dataaccess
+  - File name: applicationdbcontext.cs
+    - Class: ApplicationDbContext
+      - Method: n/a
+    - Test scenarios:
+      - Positive scenario: Database connection successful
+        - Expected output: Connection established
+      - Negative scenario: Database connection fails
+        - Expected output: Error message
+      - Boundary condition: Network issues
+        - Expected output: Error message
+ 
+  - File name: taskrepository.cs
+    - Class: TaskRepository
+      - Method: createtask
+        - Return type: bool
+        - Parameter: task (task)
+      - Method: listtasks
+        - Return type: list<task>
+        - Parameter: none
+      - Method: edittask
+        - Return type: bool
+        - Parameter: task (task)
+    - Test scenarios:
+      - Positive scenario: Valid task details
+        - Expected output: True
+      - Negative scenario: Invalid task details
+        - Expected output: False
+      - Boundary condition: Title length at maximum allowed limit
+        - Expected output: True
+ 
+  - File name: userrepository.cs
+    - Class: UserRepository
+      - Method: validateuser
+        - Return type: bool
+        - Parameter: username (string), password (string)
+    - Test scenarios:
+      - Positive scenario: Correct username and password
+        - Expected output: True
+      - Negative scenario: Incorrect username and/or password
+        - Expected output: False
+      - Boundary condition: Empty username or password
+        - Expected output: False
+
+
+
+
+
+- Database Script
+  - DBMS: SQL Server
+  - Database Name: todoapp
+    - Tables:
+      - Table Name: Tasks
+        - Columns:
+          - id, int
+          - title, string
+          - description, string
+          - status, string
+          - creation_date, datetime
+          - modification_date, datetime
+        - Primary Key: id
+        - Indexes: none
+        - Foreign Key: none
+      - Table Name: Users
+        - Columns:
+          - username, string
+          - hashed_password, string
+        - Primary Key: username
+        - Indexes: none
+        - Foreign Key: none

@@ -24,6 +24,7 @@ export class AppComponent {
   commonFunctionalities: string = '';
   databaseScripts: string = '';
   parsedStructure: any;
+  selectedContent: string = '';
 
   taskInput: string = '';
   promptLimit: number = 2048;
@@ -44,6 +45,9 @@ export class AppComponent {
   codeSynthesisContent: string = '';
   isAnalyzing: boolean = false;
   response: boolean = false;
+  codeSynthesisFolderStructure: any[] = [];
+  selectedCodeFile: string = '';
+  selectedCodeContent: string = '';
 
   constructor(private apiService: ApiService) {}
 
@@ -171,10 +175,18 @@ export class AppComponent {
         this.dataFlow = response['dataFlow'];
         this.commonFunctionalities = response['commonFunctionalities'];
         this.projectStructure = response['projectStructure'];
+        this.requirementSummary = response['requirementSummary'];
+        this.unitTesting = response['unitTesting'];
+        this.databaseScripts = response['databaseScripts']
 
         console.log('projectstructure', this.projectStructure);
-        this.fetchFolderStructure(this.projectStructure );
 
+        this.fetchFolderStructure(this.projectStructure );
+        this.projectStructureDescription = this.projectStructure;
+        const combine = this.projectStructure+'\n\n'+this.unitTesting+'\n\n'+this.databaseScripts;
+        this.synfetchFolderStructure(combine);
+
+        
         //console.log('json');
         // this.fetchFolderStructure(this.projectStructure);
         //this.parsedStructure =  this.parseProjectStructure(this.projectStructure);
@@ -190,8 +202,7 @@ export class AppComponent {
 
   
 
-  projectStructureDescription: string =
-    'This is the folder structure for our Todo List application. It includes frontend, backend, and data access layers.';
+  projectStructureDescription: string = '';
   //projectStructureDescription: string = this.projectStructure;
   folderStructure: any[] = [];
   selectedFileContent: string = '';
@@ -200,51 +211,6 @@ export class AppComponent {
     //this.fetchFolderStructure();
   }
 
-  // fetchFolderStructure() {
-  //   this.folderStructure = [
-  //     {
-  //       name: 'todolistapp',
-  //       type: 'folder',
-  //       expanded: false,
-  //       children: [
-  //         {
-  //           name: 'frontend',
-  //           type: 'folder',
-  //           expanded: false,
-  //           children: [
-  //             { name: 'logintodo.cs', type: 'file' },
-  //             { name: 'taskcreationform.cs', type: 'file' },
-  //             { name: 'tasklistingform.cs', type: 'file' },
-  //             { name: 'taskeditform.cs', type: 'file' }
-  //           ]
-  //         },
-  //         {
-  //           name: 'backend',
-  //           type: 'folder',
-  //           expanded: false,
-  //           children: [
-  //             { name: 'loginservice.cs', type: 'file' },
-  //             { name: 'taskservicecreation.cs', type: 'file' },
-  //             { name: 'taskservicelisting.cs', type: 'file' },
-  //             { name: 'taskserviceedit.cs', type: 'file' }
-  //           ]
-  //         },
-  //         {
-  //           name: 'dataaccess',
-  //           type: 'folder',
-  //           expanded: false,
-  //           children: [
-  //             { name: 'applicationdbcontext.cs', type: 'file' },
-  //             { name: 'taskrepository.cs', type: 'file' },
-  //             { name: 'userrepository.cs', type: 'file' },
-  //             { name: 'task.cs', type: 'file' },
-  //             { name: 'user.cs', type: 'file' }
-  //           ]
-  //         }
-  //       ]
-  //     }
-  //   ];
-  // }
 
   fetchFolderStructure(structure : string) {
     const inputString = structure;
@@ -256,15 +222,22 @@ export class AppComponent {
   parseStructure(input: string): any[] {
     const lines = input.split('\n').map(line => line.trim()).filter(line => line);
     let folderMap: { [key: string]: any } = {};
-    let rootNode: any = { name: '', type: 'folder', expanded: false, children: [] };
+    let rootNode: any = { name: '', type: 'folder', expanded: false, children: [], content: 'Solution Name' };
     let currentParent: any = rootNode;
     let currentFolder: any = null;
     let currentFileName: string = '';
     let contentAccumulator: string = '';
     let processingFile: boolean = false;
+    let projectPath: string = '';
  
-    const addFolderToParent = (parentFolder: any, folderName: string) => {
-      const newFolder = { name: folderName, type: 'folder', expanded: false, children: [] };
+    const addFolderToParent = (parentFolder: any, folderName: string, content: string = '') => {
+      const newFolder = {
+        name: folderName,
+        type: 'folder',
+        expanded: false,
+        children: [],
+        content: content
+      };
       parentFolder.children.push(newFolder);
       folderMap[folderName] = newFolder;
       return newFolder;
@@ -280,11 +253,17 @@ export class AppComponent {
     for (const line of lines) {
       if (line.startsWith('solution name:')) {
 rootNode.name = line.split(':')[1].trim();
+        rootNode.content = 'Solution Name'; // Set content for solution name
 folderMap[rootNode.name] = rootNode;
       } else if (line.startsWith('root folder:')) {
         const rootFolderName = line.split(':')[1].trim();
-        currentParent = addFolderToParent(rootNode, rootFolderName);
+        currentParent = addFolderToParent(rootNode, rootFolderName, 'Root folder'); // Set content for root folder
         currentFolder = currentParent;
+      } else if (line.startsWith('project path:')) {
+        projectPath = line.split(':')[1].trim(); // Store the project path
+if (currentFolder && currentFolder.name !== rootNode.name) { // Only set content if it's not the root folder
+          currentFolder.content = projectPath;
+        }
       } else if (line.startsWith('project name:')) {
         const projectName = line.split(':')[1].trim();
         currentFolder = addFolderToParent(currentParent, projectName);
@@ -325,20 +304,37 @@ if (child.type === 'file' && child.name === fileName) {
  
     const content = findFileContent(this.folderStructure[0]);
     if (content) {
-      this.selectedFileContent = content;
+      this.selectedContent = content;
     } else {
-      this.selectedFileContent = 'File content not found.';
+      this.selectedContent = 'File content not found.';
     }
   }
  
-  showFileContent(item: any) {
-    this.selectedFileContent = item.content || 'No content available.';
+  showFileContent(item: any) 
+  {
+    this.selectedContent = item.content || 'No content available.';
   }
  
-  toggleFolder(item: any) 
-  {
+  showFolderContent(item: any) {
+    this.selectedContent = item.content || 'No content available.';
+  }
+
+  showCodeFileContent(item: any) {
+    this.selectedCodeContent = item.content || 'No content available.';
+  }
+  
+  showCodeFolderContent(item: any) {
+    this.selectedCodeContent = item.content || 'No content available.';
+  }
+ 
+  toggleFolder(item: any) {
     item.expanded = !item.expanded;
   }
+
+ 
+  
+ 
+  
 
   findFileByName(name: string, folderStructure: any[]): any {
     for (const folder of folderStructure) {
@@ -364,53 +360,14 @@ if (child.type === 'file' && child.name === fileName) {
     return details;
   }
 
-  // fetchFileContent(fileName: string) {
-  //   // In a real application, you would fetch the actual file content from the backend
-  //   this.selectedFileContent = `This is the content of ${fileName}. In a real application, this would be the actual file content.`;
-  // }
 
-  // toggleFolder(folder: any) {
-  //   folder.expanded = !folder.expanded;
-  // }
 
-  codeSynthesisFolderStructure: any[] = [
-    {
-      name: 'todolistapp',
-      type: 'folder',
-      expanded: false,
-      children: [
-        {
-          name: 'src',
-          type: 'folder',
-          expanded: false,
-          children: [
-            { name: 'main.ts', type: 'file' },
-            { name: 'app.module.ts', type: 'file' },
-            {
-              name: 'components',
-              type: 'folder',
-              expanded: false,
-              children: [
-                { name: 'todo-list.component.ts', type: 'file' },
-                { name: 'todo-item.component.ts', type: 'file' },
-              ],
-            },
-            {
-              name: 'services',
-              type: 'folder',
-              expanded: false,
-              children: [{ name: 'todo.service.ts', type: 'file' }],
-            },
-          ],
-        },
-        { name: 'package.json', type: 'file' },
-        { name: 'tsconfig.json', type: 'file' },
-      ],
-    },
-  ];
-
-  selectedCodeFile: string = '';
-  selectedCodeContent: string = '';
+  synfetchFolderStructure(combined : string) {
+    const inputString = combined;
+    this.codeSynthesisFolderStructure = this.parseStructure(inputString);
+    // console.log(this.folderStructure,'this')
+    console.log('Parsed code synthesis:', JSON.stringify(this.codeSynthesisFolderStructure, null, 2));
+  }
 
   toggleCodeFolder(folder: any) {
     folder.expanded = !folder.expanded;

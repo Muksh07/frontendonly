@@ -106,14 +106,14 @@
           <h4>Project Structure Description</h4>
           <textarea [(ngModel)]="projectStructureDescription" class="full-width-textarea"></textarea>
         </div>
-     
+    
         <div class="folder-structure-section">
           <h4>Folder Structure</h4>
           <div class="folder-tree">
             <ng-container *ngTemplateOutlet="folderTemplate; context: { $implicit: folderStructure, level: 0 }"></ng-container>
           </div>
         </div>
-     
+    
         <ng-template #folderTemplate let-items let-level="level">
           <ul>
             <li *ngFor="let item of items; let last = last" [class.last-child]="last">
@@ -122,8 +122,8 @@
                   {{ item.expanded ? "[-]" : "[+]" }}
                 </span>
                 <span *ngIf="item.type === 'file'" class="file-icon">&#9679;</span>
-                <span (click)="item.type === 'file' ? showFileContent(item) : toggleFolder(item)">
-    {{ item.name }}
+                <span (click)="item.type === 'file' ? showFileContent(item) : showFolderContent(item)">
+{{ item.name }}
                 </span>
               </div>
               <ng-container *ngIf="item.type === 'folder' && item.expanded">
@@ -132,10 +132,10 @@
             </li>
           </ul>
         </ng-template>
-     
+    
         <div class="file-content-section">
-          <h4>File Content</h4>
-          <textarea [(ngModel)]="selectedFileContent" class="full-width-textarea" readonly></textarea>
+          <h4>Content</h4>
+          <textarea [(ngModel)]="selectedContent" class="full-width-textarea" readonly></textarea>
         </div>
       </div>
     </div>
@@ -168,56 +168,31 @@
       <div class="code-folder-structure-section">
         <h4>Code Folder Structure</h4>
         <div class="code-folder-tree">
-          <ng-container *ngTemplateOutlet="
+          <ng-container
+            *ngTemplateOutlet="
               codeFolderTemplate;
               context: { $implicit: codeSynthesisFolderStructure, level: 0 }
-            "></ng-container>
+            "
+          ></ng-container>
         </div>
       </div>
-
+  
       <div class="code-content-section">
-        <h4>File Content: {{ selectedCodeFile }}</h4>
-        <pre class="code-content">{{ selectedCodeContent }}</pre>
+        <h4>Content</h4>
+        <textarea
+          [(ngModel)]="selectedCodeContent"
+          class="full-width-textarea"
+          readonly
+        ></textarea>
       </div>
     </div>
+  
     <div class="action-buttons">
       <button (click)="startCodeSynthesis()">Code Synthesis</button>
       <button (click)="startCodeSynthesistest()">Code Synthesis Test</button>
-      
     </div>
-    
-  </div>
-
-  <ng-template #codeFolderTemplate let-items let-level="level">
-    <ul class="code-tree">
-      <li *ngFor="let item of items; let last = last" [class.last-child]="last">
-        <div class="code-tree-node" [style.padding-left.px]="level * 20">
-          <span *ngIf="item.type === 'folder'" class="code-folder-icon" (click)="toggleCodeFolder(item)">
-            {{ item.expanded ? "[-]" : "[+]" }}
-          </span>
-          <span *ngIf="item.type === 'file'" class="code-file-icon">&#9679;</span>
-          <span (click)="
-              item.type === 'file'
-                ? fetchCodeFileContent(item.name)
-                : toggleCodeFolder(item)
-            ">
-            {{ item.name }}
-          </span>
-        </div>
-        <ng-container *ngIf="item.type === 'folder' && item.expanded">
-          <ng-container *ngTemplateOutlet="
-              codeFolderTemplate;
-              context: { $implicit: item.children, level: level + 1 }
-            "></ng-container>
-        </ng-container>
-      </li>
-    </ul>
-  </ng-template>
-  <!-- <div class="input-section">
+  
     <div class="token-counts">No. of Tokens: {{ tokenCount }}</div>
-
-  </div>
-  <div class="output-section">
     <div class="token-counts">
       <div class="token-count" style="display: flex; gap: 10px">
         <span>CompletionTokens: {{ completionTokens }}</span>
@@ -225,6 +200,41 @@
         <span>TotalTokens: {{ totalTokens }}</span>
       </div>
     </div>
-  </div> -->
-</div>
+  
+    <ng-template #codeFolderTemplate let-items let-level="level">
+      <ul class="code-tree">
+        <li *ngFor="let item of items; let last = last" [class.last-child]="last">
+          <div class="code-tree-node" [style.padding-left.px]="level * 20">
+            <span
+              *ngIf="item.type === 'folder'"
+              class="code-folder-icon"
+              (click)="toggleCodeFolder(item)"
+            >
+              {{ item.expanded ? '[-]' : '[+]' }}
+            </span>
+            <span *ngIf="item.type === 'file'" class="code-file-icon">
+              &#9679;
+            </span>
+            <span
+              (click)="
+                item.type === 'file'
+                  ? showCodeFileContent(item)
+                  : showCodeFolderContent(item)
+              "
+            >
+{{ item.name }}
+            </span>
+          </div>
+          <ng-container *ngIf="item.type === 'folder' && item.expanded">
+            <ng-container
+              *ngTemplateOutlet="
+                codeFolderTemplate;
+                context: { $implicit: item.children, level: level + 1 }
+              "
+            ></ng-container>
+          </ng-container>
+        </li>
+      </ul>
+    </ng-template>
+  </div>
 
