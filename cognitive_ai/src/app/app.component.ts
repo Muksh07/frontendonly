@@ -87,8 +87,9 @@ export class AppComponent {
   }
 
   startCodeSynthesis() {
-    this.codeSynthesisContent = `Blueprint:\n${this.blueprintingContent}`;
-    this.setActiveTab('Code Synthesis');
+    this.traverseAndUpdateFolderStructure(this.codeSynthesisFolderStructure[0])
+    // this.codeSynthesisContent = `Blueprint:\n${this.blueprintingContent}`;
+    // this.setActiveTab('Code Synthesis');
   }
   uploadBRD() {
     const input = document.createElement('input');
@@ -193,23 +194,6 @@ export class AppComponent {
         this.createdatabasetree(this.databaseScripts);
         this.synfetchFolderStructure(this.projectStructure);
    
-        //this.synfetchFolderStructure(this.projectStructure);
-        //this.unittesttree = this.parseText(this.unitTesting);
-        //this.databasetree = this.parseDatabaseScript(this.databaseScripts);
-        //const temp1 = {name:'UnitTest',type:'folder',expanded:false,children:this.unittesttree};
-        //const temp2 = {name:'Database Script',type:'folder',expanded:false,children:this.databasetree};
-        //this.codeSynthesisFolderStructure[0]["children"][0]["children"].push(temp1);
-        //this.codeSynthesisFolderStructure[0]["children"][0]["children"].push(temp2);
-
-        // console.log("unitTree ", JSON.stringify(this.unittesttree,null,2));
-        // console.log("databaseTree ", JSON.stringify(this.databasetree,null,2));
-        // console.log("codeSynthesisFolderStructure ", JSON.stringify(this.codeSynthesisFolderStructure,null,2));
-        
-        //console.log('json');
-        // this.fetchFolderStructure(this.projectStructure);
-        //this.parsedStructure =  this.parseProjectStructure(this.projectStructure);
-        //console.log('Blueprinting response:', response);
-        // Handle the response here
       },
       (error) => {
         console.error('Error:', error);
@@ -495,6 +479,43 @@ export class AppComponent {
   toggleFolder(item: any) {
     item.expanded = !item.expanded;
   }
+
+  showCodeContent(content: string) {
+    this.selectedCodeContent = content;
+  }
+
+  toggleCodeFile(item: any) {
+    if (item.type === 'file' && item.code && item.description) {
+      item.expanded = !item.expanded;
+    }
+  }
+
+  traverseAndUpdateFolderStructure(node: any, level: number = 0) 
+  {
+      
+      if(level==3 && node.name == 'UnitTest')
+      {
+        
+      }
+    
+      if (node.type === 'file')  //unit test
+      {
+          const result = this.apiService.Codesynthesis(node.name, node.content,2);
+          node.expanded = false;
+          node.code = result;
+          //node.description = result.description;
+          
+          // Print the level number to the console
+          console.log(`File: ${node.name} is at level ${level}`);
+      }
+      if (node.children) {
+          for (const child of node.children) {
+            this.traverseAndUpdateFolderStructure(child, level + 1);
+          }
+      }
+  }
+
+  
 
  
   

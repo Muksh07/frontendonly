@@ -212,16 +212,17 @@
             >
               {{ item.expanded ? '[-]' : '[+]' }}
             </span>
-            <span *ngIf="item.type === 'file'" class="code-file-icon">
+            <span
+              *ngIf="item.type === 'file' && item.code && item.description"
+              class="code-file-icon"
+              (click)="toggleCodeFile(item)"
+            >
+              {{ item.expanded ? '[-]' : '[+]' }}
+            </span>
+            <span *ngIf="item.type === 'file' " class="code-file-icon">
               &#9679;
             </span>
-            <span
-              (click)="
-                item.type === 'file'
-                  ? showCodeFileContent(item)
-                  : showCodeFolderContent(item)
-              "
-            >
+            <span (click)="showCodeContent(item.content)">
 {{ item.name }}
             </span>
           </div>
@@ -232,6 +233,22 @@
                 context: { $implicit: item.children, level: level + 1 }
               "
             ></ng-container>
+          </ng-container>
+          <ng-container *ngIf="item.type === 'file' && item.expanded && item.code && item.description">
+            <ul class="code-tree">
+              <li>
+                <div class="code-tree-node" [style.padding-left.px]="(level + 1) * 20">
+                  <span class="code-file-icon">&#9679;</span>
+                  <span (click)="showCodeContent(item.code)">code</span>
+                </div>
+              </li>
+              <li>
+                <div class="code-tree-node" [style.padding-left.px]="(level + 1) * 20">
+                  <span class="code-file-icon">&#9679;</span>
+                  <span (click)="showCodeContent(item.description)">description</span>
+                </div>
+              </li>
+            </ul>
           </ng-container>
         </li>
       </ul>
