@@ -86,18 +86,31 @@ export class AppComponent {
     this.setActiveBlueprintingSubTab('Requirement Summary');
   }
 
-  startCodeSynthesis() 
-  {
-    //this.traverseAndUpdateFolderStructure(this.codeSynthesisFolderStructure[0]);
-    this.apiService.Codesynthesis(this.codeSynthesisFolderStructure[0]).subscribe(
-                (response) => {
-                  console.log("result", response);
-                  this.codeSynthesisFolderStructure[0] = response;
-                },
-                (error) => {
-                  console.error('Error during codegeneration:', error);
-                }
-              );
+  // startCodeSynthesis()
+  // {
+  //   //this.traverseAndUpdateFolderStructure(this.codeSynthesisFolderStructure[0]);
+  //   this.apiService.Codesynthesis(this.codeSynthesisFolderStructure[0]).subscribe(
+  //               (response) => {
+  //                 console.log("result", response);
+  //                 this.codeSynthesisFolderStructure[0] = response;
+  //               },
+  //               (error) => {
+  //                 console.error('Error during codegeneration:', error);
+  //               }
+  //             );
+  // }
+  startCodeSynthesis() {
+    this.apiService
+      .Codesynthesis(this.codeSynthesisFolderStructure[0])
+      .subscribe(
+        (response) => {
+          console.log('result', response);
+          this.codeSynthesisFolderStructure[0] = response;
+        },
+        (error) => {
+          console.error('Error during code generation:', error);
+        }
+      );
   }
   uploadBRD() {
     const input = document.createElement('input');
@@ -555,7 +568,7 @@ export class AppComponent {
   // async traverseAndUpdateFolderStructure(rootNode: any) {
   //   const stack = [{ node: rootNode, level: 0, parentfolder: '' }];
 
-  //   while (stack.length > 0) 
+  //   while (stack.length > 0)
   //   {
   //     const { node, level, parentfolder } = stack.pop()!;
 
@@ -585,7 +598,7 @@ export class AppComponent {
 
   //     // Process file based on the parentfolder
   //     if (node.type === 'file') {
-  //       if (newParentFolder === 'UnitTest') 
+  //       if (newParentFolder === 'UnitTest')
   //       {
   //       // console.log(`Processing UnitTest file: ${node.name}`);
   //       //   (await this.apiService.Codesynthesis(node.name, node.content, 2)).subscribe(
@@ -598,15 +611,15 @@ export class AppComponent {
   //       //     },
   //       //     (error) => {
   //       //       console.error('Error during codegeneration:', error);
-      
+
   //       //       //this.isAnalyzing = false; // Stop the spinner even if there's an error
   //       //     }
   //       //   );
   //       //   console.log(
   //       //     `Processed UnitTest file: ${node.name} at level ${level}`
   //       //   );
-  //        } 
-  //        else if (newParentFolder === 'DataScripting') 
+  //        }
+  //        else if (newParentFolder === 'DataScripting')
   //       {
   //       //   console.log(`Processing DataScripting file: ${node.name}`);
   //       //   (await this.apiService.Codesynthesis(node.name, node.content, 1)).subscribe(
@@ -614,20 +627,20 @@ export class AppComponent {
   //       //       console.log("result", response);
   //       //       node.expanded = false;
   //       //       node.code = response;
-  
+
   //       //       console.log(`Processed DataScripting file: ${node.name} at level ${level}`);
   //       //       // Stop the spinner after the response
   //       //     },
   //       //     (error) => {
   //       //       console.error('Error during codegeneration:', error);
-      
+
   //       //       //this.isAnalyzing = false; // Stop the spinner even if there's an error
   //       //     }
   //       //   );
   //       //   console.log(
   //       //     `Processed DataScripting file: ${node.name} at level ${level}`
   //       //   );
-  //       } 
+  //       }
   //       else {
   //         console.log(`Processing general file: ${node.name}`);
   //         (await this.apiService.Codesynthesis(node.name, node.content, 0)).subscribe(
@@ -635,13 +648,13 @@ export class AppComponent {
   //             console.log("result", response);
   //             node.expanded = false;
   //             node.code = response;
-              
+
   //             console.log(`Processed general file: ${node.name} at level ${level}`);
   //             // Stop the spinner after the response
   //           },
   //           (error) => {
   //             console.error('Error during codegeneration:', error);
-      
+
   //             //this.isAnalyzing = false; // Stop the spinner even if there's an error
   //           }
   //         );
@@ -662,9 +675,6 @@ export class AppComponent {
   //     }
   //   }
   // }
-
-
-
 
   findFileByName(name: string, folderStructure: any[]): any {
     for (const folder of folderStructure) {
