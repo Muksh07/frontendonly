@@ -1,7 +1,130 @@
-[HttpPost]
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using backend.Models;
+using Microsoft.AspNetCore.Mvc;
+using GPTService.Core;
+using backend.Service;
+using System.Collections;
+using Newtonsoft.Json.Serialization;
+using System.Linq.Expressions;
+
+
+namespace backend.Controllers.BRD
+{
+
+    [ApiController]
+    [Route("api/[controller]")]
+    public class BRDAnalyzerController : ControllerBase
+    {
+
+        private readonly HttpClient _httpClient;
+        GPTService.Core.GPTService gPTService = new GPTService.Core.GPTService { };
+        Functionality _functionality = new Functionality();
+        public BRDAnalyzerController(HttpClient httpClient)
+        {
+            _httpClient = httpClient;
+        }
+
+        [HttpPost("analyse")]
+        public async Task<IActionResult> AnalyzeBRD([FromBody] BRDRequestModel request)
+        {
+            if (string.IsNullOrEmpty(request.brdContent) || string.IsNullOrEmpty(request.task))
+            {
+                return BadRequest("Please provide Business Requirement and Task to perform");
+            }
+            try
+            {
+                string strtask = request.task.Trim().ToLower();
+                if (strtask.StartsWith("new:"))
+                {
+                    strtask = request.task.Trim();
+                }
+                else
+                {
+                    strtask = request.task.Trim() + "and provide solution with project folder, file structure , provide response without any extra symbols but bulleted points, using format\r\n";
+                }
+
+                var result = await _functionality.AnalyzeBRD(request.brdContent, strtask + gPTService.GetPromptTask(0), 0);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+
+
+
+
+        [HttpPost("solidify")]
+        public async Task<ActionResult<SolidificationResponseModel>> SolidifyBRD([FromBody] SolidificationRequestModel request)
+        {
+            if (string.IsNullOrEmpty(request.AnalysisResult))
+            {
+                return BadRequest("Please provide Business Requirement and Task to perform");
+            }
+            try
+            {
+                var result = await _functionality.AnalyzeBRD(request.AnalysisResult, gPTService.GetPromptTask(1), 1);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+
+        [HttpPost("BluePrinting")]
+        public async Task<ActionResult<SolidificationResponseModel>> Blueprinting([FromBody] SolidificationResponseModel request)
+        {
+            if (string.IsNullOrEmpty(request.SolidificationOutput))
+            {
+                return BadRequest("Please provide Business Requirement and Task to perform");
+            }
+            try
+            {
+                //summary
+
+                string RequirementSummary = await _functionality.AnalyzeBRD(request.SolidificationOutput, gPTService.GetPromptTask(2), 2);
+
+                var result = _functionality.GenerateBluePrintDetails("summary", request.SolidificationOutput.Trim().ToLower());
+
+                result["requirementSummary"] = RequirementSummary;
+
+                //Unit Testing
+                var prompttext = "Solution Overview:\n" + result["solutionOverview"].Trim() + "\nProject Structure:\n" + result["projectStructure"].Trim();
+                string unitTesting = await _functionality.AnalyzeBRD(prompttext, gPTService.GetPromptTask(5), 2);
+                result["unitTesting"] = unitTesting;
+
+                // Database Script
+                var prompttext2 = "Solution Overview:\n" + result["solutionOverview"].Trim() + "\n Project Structure:\n" + result["projectStructure"].Trim();
+                string dbscripts = await _functionality.AnalyzeBRD(prompttext, gPTService.GetPromptTask(3), 2);
+                result["databaseScripts"] = dbscripts;
+
+
+
+                //Console.WriteLine("temp",temp);
+                //var jsonPrompt = "Create folder tree structure and return response in json format";
+                //result["projectStructure"] =  await _functionality.AnalyzeBRD(temp, jsonPrompt, 0);
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+
+        [HttpPost]
         [Route("CodeSynthesis")]
         public async Task<ActionResult<string>> CodeSynthesis([FromBody] CodeSynthesisRequestModel requestModel)
         {
+            
             Console.WriteLine("before try Filename:", requestModel.filename);
             Console.WriteLine("before try Content:", requestModel.filecontent);
 
@@ -48,31 +171,23 @@
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
+    }
+}
 
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
- public class CodeSynthesisRequestModel
+namespace backend.Models
+{
+    public class CodeSynthesisRequestModel
     {
         public string? filename { get; set; }
         public string? filecontent { get; set; }
         public int i { get; set; }
     }
-
-
-
-{
-  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.1",
-  "title": "One or more validation errors occurred.",
-  "status": 400,
-  "errors": {
-    "request": [
-      "The request field is required."
-    ],
-    "$.filecontent": [
-      "'0x0A' is invalid within a JSON string. The string should be correctly escaped. Path: $.filecontent | LineNumber: 2 | BytePositionInLine: 37."
-    ]
-  },
-  "traceId": "00-af7653e5d5f3881bb9d09797e9a1794f-0e255680520eb336-00"
 }
 
 
@@ -111,5 +226,3 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
-
-
