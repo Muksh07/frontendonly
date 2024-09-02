@@ -86,10 +86,18 @@ export class AppComponent {
     this.setActiveBlueprintingSubTab('Requirement Summary');
   }
 
-  startCodeSynthesis() {
-    this.traverseAndUpdateFolderStructure(this.codeSynthesisFolderStructure[0]);
-    // this.codeSynthesisContent = `Blueprint:\n${this.blueprintingContent}`;
-    // this.setActiveTab('Code Synthesis');
+  startCodeSynthesis() 
+  {
+    //this.traverseAndUpdateFolderStructure(this.codeSynthesisFolderStructure[0]);
+    this.apiService.Codesynthesis(this.codeSynthesisFolderStructure[0]).subscribe(
+                (response) => {
+                  console.log("result", response);
+                  this.codeSynthesisFolderStructure[0] = response;
+                },
+                (error) => {
+                  console.error('Error during codegeneration:', error);
+                }
+              );
   }
   uploadBRD() {
     const input = document.createElement('input');
@@ -544,110 +552,116 @@ export class AppComponent {
     }
   }
 
-  async traverseAndUpdateFolderStructure(rootNode: any) {
-    const stack = [{ node: rootNode, level: 0, parentfolder: '' }];
+  // async traverseAndUpdateFolderStructure(rootNode: any) {
+  //   const stack = [{ node: rootNode, level: 0, parentfolder: '' }];
 
-    while (stack.length > 0) {
-      const { node, level, parentfolder } = stack.pop()!;
+  //   while (stack.length > 0) 
+  //   {
+  //     const { node, level, parentfolder } = stack.pop()!;
 
-      console.log(
-        `Traversing: ${node.name}, Level: ${level}, Current Parent Folder: ${parentfolder}`
-      );
+  //     console.log(
+  //       `Traversing: ${node.name}, Level: ${level}, Current Parent Folder: ${parentfolder}`
+  //     );
 
-      // Check if we're at level 2 and it's a folder named 'DataScripting' or 'UnitTest'
-      let newParentFolder = parentfolder;
-      if (node.type === 'folder' && level === 2) {
-        if (node.name === 'DataScripting') {
-          newParentFolder = 'DataScripting';
-          console.log(
-            `Found DataScripting folder at level 2, setting parentfolder to ${newParentFolder}`
-          );
-        } else if (node.name === 'UnitTest') {
-          newParentFolder = 'UnitTest';
-          console.log(
-            `Found UnitTest folder at level 2, setting parentfolder to ${newParentFolder}`
-          );
-        } else {
-          console.log(
-            `At level 2, but folder name does not match: ${node.name}`
-          );
-        }
-      }
+  //     // Check if we're at level 2 and it's a folder named 'DataScripting' or 'UnitTest'
+  //     let newParentFolder = parentfolder;
+  //     if (node.type === 'folder' && level === 2) {
+  //       if (node.name === 'DataScripting') {
+  //         newParentFolder = 'DataScripting';
+  //         console.log(
+  //           `Found DataScripting folder at level 2, setting parentfolder to ${newParentFolder}`
+  //         );
+  //       } else if (node.name === 'UnitTest') {
+  //         newParentFolder = 'UnitTest';
+  //         console.log(
+  //           `Found UnitTest folder at level 2, setting parentfolder to ${newParentFolder}`
+  //         );
+  //       } else {
+  //         console.log(
+  //           `At level 2, but folder name does not match: ${node.name}`
+  //         );
+  //       }
+  //     }
 
-      // Process file based on the parentfolder
-      if (node.type === 'file') {
-        if (newParentFolder === 'UnitTest') {
-          console.log(`Processing UnitTest file: ${node.name}`);
-          (await this.apiService.Codesynthesis(node.name, node.content, 2)).subscribe(
-            (response) => {
-              console.log("result", response);
-              node.expanded = false;
-              node.code = response;
-              console.log(`Processed UnitTest file: ${node.name} at level ${level}`);
-              // Stop the spinner after the response
-            },
-            (error) => {
-              console.error('Error during codegeneration:', error);
+  //     // Process file based on the parentfolder
+  //     if (node.type === 'file') {
+  //       if (newParentFolder === 'UnitTest') 
+  //       {
+  //       // console.log(`Processing UnitTest file: ${node.name}`);
+  //       //   (await this.apiService.Codesynthesis(node.name, node.content, 2)).subscribe(
+  //       //     (response) => {
+  //       //       console.log("result", response);
+  //       //       node.expanded = false;
+  //       //       node.code = response;
+  //       //       console.log(`Processed UnitTest file: ${node.name} at level ${level}`);
+  //       //       // Stop the spinner after the response
+  //       //     },
+  //       //     (error) => {
+  //       //       console.error('Error during codegeneration:', error);
       
-              //this.isAnalyzing = false; // Stop the spinner even if there's an error
-            }
-          );
-          console.log(
-            `Processed UnitTest file: ${node.name} at level ${level}`
-          );
-        } else if (newParentFolder === 'DataScripting') {
-          console.log(`Processing DataScripting file: ${node.name}`);
-          (await this.apiService.Codesynthesis(node.name, node.content, 1)).subscribe(
-            (response) => {
-              console.log("result", response);
-              node.expanded = false;
-              node.code = response;
+  //       //       //this.isAnalyzing = false; // Stop the spinner even if there's an error
+  //       //     }
+  //       //   );
+  //       //   console.log(
+  //       //     `Processed UnitTest file: ${node.name} at level ${level}`
+  //       //   );
+  //        } 
+  //        else if (newParentFolder === 'DataScripting') 
+  //       {
+  //       //   console.log(`Processing DataScripting file: ${node.name}`);
+  //       //   (await this.apiService.Codesynthesis(node.name, node.content, 1)).subscribe(
+  //       //     (response) => {
+  //       //       console.log("result", response);
+  //       //       node.expanded = false;
+  //       //       node.code = response;
   
-              console.log(`Processed DataScripting file: ${node.name} at level ${level}`);
-              // Stop the spinner after the response
-            },
-            (error) => {
-              console.error('Error during codegeneration:', error);
+  //       //       console.log(`Processed DataScripting file: ${node.name} at level ${level}`);
+  //       //       // Stop the spinner after the response
+  //       //     },
+  //       //     (error) => {
+  //       //       console.error('Error during codegeneration:', error);
       
-              //this.isAnalyzing = false; // Stop the spinner even if there's an error
-            }
-          );
-          console.log(
-            `Processed DataScripting file: ${node.name} at level ${level}`
-          );
-        } else {
-          console.log(`Processing general file: ${node.name}`);
-          (await this.apiService.Codesynthesis(node.name, node.content, 0)).subscribe(
-            (response) => {
-              console.log("result", response);
-              node.expanded = false;
-              node.code = response;
+  //       //       //this.isAnalyzing = false; // Stop the spinner even if there's an error
+  //       //     }
+  //       //   );
+  //       //   console.log(
+  //       //     `Processed DataScripting file: ${node.name} at level ${level}`
+  //       //   );
+  //       } 
+  //       else {
+  //         console.log(`Processing general file: ${node.name}`);
+  //         (await this.apiService.Codesynthesis(node.name, node.content, 0)).subscribe(
+  //           (response) => {
+  //             console.log("result", response);
+  //             node.expanded = false;
+  //             node.code = response;
               
-              console.log(`Processed general file: ${node.name} at level ${level}`);
-              // Stop the spinner after the response
-            },
-            (error) => {
-              console.error('Error during codegeneration:', error);
+  //             console.log(`Processed general file: ${node.name} at level ${level}`);
+  //             // Stop the spinner after the response
+  //           },
+  //           (error) => {
+  //             console.error('Error during codegeneration:', error);
       
-              //this.isAnalyzing = false; // Stop the spinner even if there's an error
-            }
-          );
-          console.log(`Processed general file: ${node.name} at level ${level}`);
-        }
-      }
+  //             //this.isAnalyzing = false; // Stop the spinner even if there's an error
+  //           }
+  //         );
+  //         break;
+  //         console.log(`Processed general file: ${node.name} at level ${level}`);
+  //       }
+  //     }
 
-      // Add children to stack
-      if (node.children) {
-        for (const child of node.children) {
-          stack.push({
-            node: child,
-            level: level + 1,
-            parentfolder: newParentFolder,
-          });
-        }
-      }
-    }
-  }
+  //     // Add children to stack
+  //     if (node.children) {
+  //       for (const child of node.children) {
+  //         stack.push({
+  //           node: child,
+  //           level: level + 1,
+  //           parentfolder: newParentFolder,
+  //         });
+  //       }
+  //     }
+  //   }
+  // }
 
 
 

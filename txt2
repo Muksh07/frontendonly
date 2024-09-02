@@ -125,6 +125,7 @@ namespace backend.Controllers.BRD
         public async Task<ActionResult<string>> CodeSynthesis([FromBody] CodeSynthesisRequestModel requestModel)
         {
             
+            
             Console.WriteLine("before try Filename:", requestModel.filename);
             Console.WriteLine("before try Content:", requestModel.filecontent);
 
@@ -226,3 +227,22 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+
+
+
+
+requestBody : 
+{filename: 'user.cs', filecontent: 'coding language: c#\ntechnology stack: .net core/.n…cationdbcontext.cs\nintegration points: sql server', i: 0}
+filecontent
+: 
+"coding language: c#\ntechnology stack: .net core/.net framework, entity framework core\nfile purpose and context: defines the user model\nmethods: none\ndata validation: ensure user properties are valid\nerror handling: none\nlogging: none\ninteractions and dependencies: interacts with applicationdbcontext.cs\nintegration points: sql server"
+filename
+: 
+"user.cs"
+i
+: 
+0
+
+
+result Please provide Business Requirement and Task to perform

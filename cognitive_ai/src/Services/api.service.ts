@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { delay } from 'rxjs/operators';
@@ -43,15 +43,22 @@ export class ApiService
   }
 
 
-  Codesynthesis(Filename: string, Filecontent:string, k:number): Observable<string> 
+  // Codesynthesis(Filename: string, Filecontent:string, k:number): Observable<string> 
+  // {
+  //   const requestBody = {
+  //     filename: Filename,
+  //     filecontent: Filecontent,
+  //     i: k
+  //   };
+  //   console.log("requestBody :", requestBody);
+  //   return this.http.post<string>(this.apiurlCodesynthesis, requestBody,{responseType: 'text' as 'json' });
+  // }
+  Codesynthesis(folderstructure: any): Observable<any> 
   {
     const requestBody = {
-      filename: Filename,
-      filecontent: Filecontent,
-      i: k
-    };
+      FolderStructure : folderstructure} ;
     console.log("requestBody :", requestBody);
-    return this.http.post<string>(this.apiurlCodesynthesis, requestBody, { responseType: 'text' as 'json' });
+    return this.http.post<any>(this.apiurlCodesynthesis, requestBody,{responseType: 'text' as 'json' });
   }
 
   
