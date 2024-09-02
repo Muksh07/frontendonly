@@ -43,11 +43,11 @@ export class ApiService
   }
 
 
-  Codesynthesis(filename: string, filecontent:string, k:number): Observable<string> 
+  Codesynthesis(Filename: string, Filecontent:string, k:number): Observable<string> 
   {
     const requestBody = {
-      filename: filename,
-      filecontent: filecontent,
+      filename: Filename,
+      filecontent: Filecontent,
       i: k
     };
     console.log("requestBody :", requestBody);

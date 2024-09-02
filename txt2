@@ -1,59 +1,53 @@
-[HttpPost("CodeSynthesis")]
-public async Task<ActionResult<CodeSynthesisRequestModel>> CodeSynthesis(string filename, string filecontent, int i)
-{
-    Console.WriteLine("before try Filename :", filename);
-    Console.WriteLine("before try Content :", filecontent);
-    try
-    {
-        switch (i)
+[HttpPost]
+        [Route("CodeSynthesis")]
+        public async Task<ActionResult<string>> CodeSynthesis([FromBody] CodeSynthesisRequestModel requestModel)
         {
-            case 0:
-                Console.WriteLine("Filename :", filename);
-                Console.WriteLine("Content :", filecontent);
-                var prompttext0 = _functionality.GetPromptText(filename, filecontent);
-                Console.WriteLine("prompttext0", prompttext0);
+            Console.WriteLine("before try Filename:", requestModel.filename);
+            Console.WriteLine("before try Content:", requestModel.filecontent);
 
-                var strGeneratorCode = await _functionality.AnalyzeBRD(prompttext0, gPTService.GetPromptTask(4), 3);
-                //rchContents.Text = strGeneratorCode;
-                Console.WriteLine("generatedcode ", strGeneratorCode);
-                return Ok(strGeneratorCode);
+            try
+            {
+                string generatedCode = string.Empty;
+                switch (requestModel.i)
+                {
+                    case 0:
+                        Console.WriteLine("Filename:", requestModel.filename);
+                        Console.WriteLine("Content:", requestModel.filecontent);
+                        var prompttext0 = _functionality.GetPromptText(requestModel.filename, requestModel.filecontent);
+                        Console.WriteLine("prompttext0", prompttext0);
+                        generatedCode = await _functionality.AnalyzeBRD(prompttext0, gPTService.GetPromptTask(4), 3);
+                        break;
 
+                    case 1:  // DataBase
+                        var prompttext1 = _functionality.GetPromptText(requestModel.filename, requestModel.filecontent);
+                        Console.WriteLine("prompttext1", prompttext1);
+                        generatedCode = await _functionality.AnalyzeBRD(prompttext1, gPTService.GetPromptTask(6), 3);
+                        break;
 
-            case 1:  // DataBase 
-                var prompttext1 = _functionality.GetPromptText(filename, filecontent);
-                Console.WriteLine("prompttext1", prompttext1);
-                var strGeneratorCode1 = await _functionality.AnalyzeBRD(prompttext1, gPTService.GetPromptTask(6), 3);
-                //rchContents.Text = strGeneratorCode;
-                Console.WriteLine("generatedcode ", strGeneratorCode1);
-                return Ok(strGeneratorCode1);
+                    case 2:   // Unit testing
+                        var prompttext2 = _functionality.GetPromptText(requestModel.filename, requestModel.filecontent);
+                        Console.WriteLine("prompttext2", prompttext2);
+                        generatedCode = await _functionality.AnalyzeBRD(prompttext2, gPTService.GetPromptTask(7), 3);
+                        break;
 
+                    case 3:  // Describe the code
+                        var prompttext3 = requestModel.filecontent;
+                        Console.WriteLine("prompttext3", prompttext3);
+                        generatedCode = await _functionality.AnalyzeBRD(prompttext3, gPTService.GetPromptTask(8), 3);
+                        break;
 
-            case 2:   // Unit testing
-                var prompttext2 = _functionality.GetPromptText(filename, filecontent);
-                Console.WriteLine("prompttext2", prompttext2);
-                var strGeneratorCode2 = await _functionality.AnalyzeBRD(prompttext2, gPTService.GetPromptTask(7), 3);
-                //rchContents.Text = strGeneratorCode;
-                Console.WriteLine("generatedcode ", strGeneratorCode2);
-                return Ok(strGeneratorCode2);
+                    default:
+                        return BadRequest("Invalid case value");
+                }
 
-
-            case 3:  // Describe the code
-                var prompttext3 = filecontent;
-                Console.WriteLine("prompttext3", prompttext3);
-                var strGeneratorCode3 = await _functionality.AnalyzeBRD(prompttext3, gPTService.GetPromptTask(8), 3);
-                //rchContents.Text = strGeneratorCode;
-                Console.WriteLine("generatedcode ", strGeneratorCode3);
-                return Ok(strGeneratorCode3);
-
+                Console.WriteLine("generatedcode", generatedCode);
+                return Ok(generatedCode);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
-        return Ok("code not generated");
-    }
-    catch (Exception ex)
-    {
-        return StatusCode(500, $"Internal server error: {ex.Message}");
-    }
-}
-
 
 
 
@@ -80,3 +74,42 @@ public async Task<ActionResult<CodeSynthesisRequestModel>> CodeSynthesis(string 
   },
   "traceId": "00-af7653e5d5f3881bb9d09797e9a1794f-0e255680520eb336-00"
 }
+
+
+
+using backend.Service;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Add services to the container.
+// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+builder.Services.AddControllers();
+builder.Services.AddCors();
+builder.Services.AddTransient<Functionality>();
+builder.Services.AddHttpClient(); 
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+var app = builder.Build();
+
+// Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
+app.UseHttpsRedirection();
+
+app.UseCors(x => x
+.AllowAnyHeader()
+.AllowAnyMethod()
+.AllowAnyOrigin()
+);
+
+app.UseAuthorization();
+app.MapControllers();
+
+app.Run();
+
+
