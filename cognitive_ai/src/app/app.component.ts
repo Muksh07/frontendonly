@@ -490,30 +490,101 @@ export class AppComponent {
     }
   }
 
-  traverseAndUpdateFolderStructure(node: any, level: number = 0) 
+  traverseAndUpdateFolderStructure(node: any, level: number = 0, parentfolder: string = '')
   {
-      
-      if(level==3 && node.name == 'UnitTest')
-      {
-        
+    console.log(`Traversing: ${node.name}, Level: ${level}, Current Parent Folder: ${parentfolder}`);
+  
+    // Check if we're at level 2 and it's a folder named 'DataScripting' or 'UnitTest'
+    if (node.type === 'folder' && level === 2) 
+    {
+      if (node.name === 'DataScripting') 
+      { // Corrected to match the existing folder name
+        parentfolder = 'DataScripting';
+        console.log(`Found DataScripting folder at level 2, setting parentfolder to ${parentfolder}`);
+      } else if (node.name === 'UnitTest') {
+        parentfolder = 'UnitTest';
+        console.log(`Found UnitTest folder at level 2, setting parentfolder to ${parentfolder}`);
+      } else {
+        console.log(`At level 2, but folder name does not match: ${node.name}`);
       }
+    }
     
-      if (node.type === 'file')  //unit test
+  
+    // Process file based on the parentfolder
+    if (node.type === 'file') 
+    {
+      if (parentfolder === 'UnitTest') 
       {
-          const result = this.apiService.Codesynthesis(node.name, node.content,2);
-          node.expanded = false;
-          node.code = result;
-          //node.description = result.description;
-          
-          // Print the level number to the console
-          console.log(`File: ${node.name} is at level ${level}`);
-      }
-      if (node.children) {
-          for (const child of node.children) {
-            this.traverseAndUpdateFolderStructure(child, level + 1);
+        console.log("control");
+        console.log(`Processing UnitTest file: ${node.name}`);
+        this.apiService.Codesynthesis(node.name, node.content,2).subscribe(
+          (response) => {
+            console.log("result", response);
+            node.expanded = false;
+            node.code = response;
+            console.log(`Processed UnitTest file: ${node.name} at level ${level}`);
+            // Stop the spinner after the response
+          },
+          (error) => {
+            console.error('Error during codegeneration:', error);
+    
+            //this.isAnalyzing = false; // Stop the spinner even if there's an error
           }
+        );
+       
+        //node.description = result.description;
+      } 
+      else if (parentfolder === 'DataScripting') 
+      {
+        console.log(`Processing DataScripting file: ${node.name}`);
+        this.apiService.Codesynthesis(node.name, node.content,1).subscribe(
+          (response) => {
+            console.log("result", response);
+            node.expanded = false;
+            node.code = response;
+
+            console.log(`Processed DataScripting file: ${node.name} at level ${level}`);
+            // Stop the spinner after the response
+          },
+          (error) => {
+            console.error('Error during codegeneration:', error);
+    
+            //this.isAnalyzing = false; // Stop the spinner even if there's an error
+          }
+        );;
+        
+        //node.description = result.description;
+      } 
+      else 
+      {
+        console.log(`Processing general file: ${node.name}`);
+        this.apiService.Codesynthesis(node.name, node.content,0).subscribe(
+          (response) => {
+            console.log("result", response);
+            node.expanded = false;
+            node.code = response;
+            
+            console.log(`Processed general file: ${node.name} at level ${level}`);
+            // Stop the spinner after the response
+          },
+          (error) => {
+            console.error('Error during codegeneration:', error);
+    
+            //this.isAnalyzing = false; // Stop the spinner even if there's an error
+          }
+        );;
+       // node.description = result.description;
       }
+    }
+  
+    // Recursively traverse children
+    if (node.children) {
+      for (const child of node.children) {
+        this.traverseAndUpdateFolderStructure(child, level + 1, parentfolder);
+      }
+    }
   }
+ 
 
   
 
@@ -570,7 +641,7 @@ synfetchFolderStructure(structure: string) {
 
   this.codeSynthesisFolderStructure = this.parseStructure(inputString);
   const temp =  {
-    name: 'DataScipting',
+    name: 'DataScripting',
     type: 'folder',
     expanded: false,
     children: this.datascripttree

@@ -42,14 +42,15 @@ export class ApiService
     return this.http.post<{ [key: string]: string }>(this.apiurlBlueprinting, requestBody, { responseType: 'json' });
   }
 
-  
-  Codesynthesis(filename: string, filecontent:string, k:any): Observable<string> 
+
+  Codesynthesis(filename: string, filecontent:string, k:number): Observable<string> 
   {
     const requestBody = {
       filename: filename,
       filecontent: filecontent,
-      i:k
+      i: k
     };
+    console.log("requestBody :", requestBody);
     return this.http.post<string>(this.apiurlCodesynthesis, requestBody, { responseType: 'text' as 'json' });
   }
 

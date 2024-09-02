@@ -1,0 +1,82 @@
+[HttpPost("CodeSynthesis")]
+public async Task<ActionResult<CodeSynthesisRequestModel>> CodeSynthesis(string filename, string filecontent, int i)
+{
+    Console.WriteLine("before try Filename :", filename);
+    Console.WriteLine("before try Content :", filecontent);
+    try
+    {
+        switch (i)
+        {
+            case 0:
+                Console.WriteLine("Filename :", filename);
+                Console.WriteLine("Content :", filecontent);
+                var prompttext0 = _functionality.GetPromptText(filename, filecontent);
+                Console.WriteLine("prompttext0", prompttext0);
+
+                var strGeneratorCode = await _functionality.AnalyzeBRD(prompttext0, gPTService.GetPromptTask(4), 3);
+                //rchContents.Text = strGeneratorCode;
+                Console.WriteLine("generatedcode ", strGeneratorCode);
+                return Ok(strGeneratorCode);
+
+
+            case 1:  // DataBase 
+                var prompttext1 = _functionality.GetPromptText(filename, filecontent);
+                Console.WriteLine("prompttext1", prompttext1);
+                var strGeneratorCode1 = await _functionality.AnalyzeBRD(prompttext1, gPTService.GetPromptTask(6), 3);
+                //rchContents.Text = strGeneratorCode;
+                Console.WriteLine("generatedcode ", strGeneratorCode1);
+                return Ok(strGeneratorCode1);
+
+
+            case 2:   // Unit testing
+                var prompttext2 = _functionality.GetPromptText(filename, filecontent);
+                Console.WriteLine("prompttext2", prompttext2);
+                var strGeneratorCode2 = await _functionality.AnalyzeBRD(prompttext2, gPTService.GetPromptTask(7), 3);
+                //rchContents.Text = strGeneratorCode;
+                Console.WriteLine("generatedcode ", strGeneratorCode2);
+                return Ok(strGeneratorCode2);
+
+
+            case 3:  // Describe the code
+                var prompttext3 = filecontent;
+                Console.WriteLine("prompttext3", prompttext3);
+                var strGeneratorCode3 = await _functionality.AnalyzeBRD(prompttext3, gPTService.GetPromptTask(8), 3);
+                //rchContents.Text = strGeneratorCode;
+                Console.WriteLine("generatedcode ", strGeneratorCode3);
+                return Ok(strGeneratorCode3);
+
+        }
+        return Ok("code not generated");
+    }
+    catch (Exception ex)
+    {
+        return StatusCode(500, $"Internal server error: {ex.Message}");
+    }
+}
+
+
+
+
+ public class CodeSynthesisRequestModel
+    {
+        public string? filename { get; set; }
+        public string? filecontent { get; set; }
+        public int i { get; set; }
+    }
+
+
+
+{
+  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.1",
+  "title": "One or more validation errors occurred.",
+  "status": 400,
+  "errors": {
+    "request": [
+      "The request field is required."
+    ],
+    "$.filecontent": [
+      "'0x0A' is invalid within a JSON string. The string should be correctly escaped. Path: $.filecontent | LineNumber: 2 | BytePositionInLine: 37."
+    ]
+  },
+  "traceId": "00-af7653e5d5f3881bb9d09797e9a1794f-0e255680520eb336-00"
+}
