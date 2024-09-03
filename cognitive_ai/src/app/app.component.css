@@ -428,106 +428,131 @@ nav .blueprinting-sub-tab:focus {
 .blueprinting-container {
   height: calc(100vh - 200px); /* Adjust based on your layout */
 }
+
+
+
+
+
+
+
+
 .code-synthesis-container {
   display: flex;
   justify-content: space-between;
   height: 80vh;
   gap: 20px;
 }
-
-.code-folder-structure-section, .code-content-section {
-  width: calc(50% - 10px);
+ 
+.code-folder-structure-section,
+.code-content-section {
   height: 100%;
   display: flex;
   flex-direction: column;
-  background-color: #f5f5f5;
+  background-color: #ffffff;
   border-radius: 8px;
-  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
-
-.code-folder-structure-section h4, .code-content-section h4 {
+ 
+.code-folder-structure-section {
+  width: 33.33%;
+}
+ 
+.code-content-section {
+  width: 66.66%;
+}
+ 
+.code-folder-structure-section h4,
+.code-content-section h4 {
   margin: 0;
-  padding: 10px;
-  background-color: #e0e0e0;
-  font-size: 16px;
+  padding: 15px;
+  background-color: #f5f5f5;
+  font-size: 18px;
+  font-weight: bold;
+  border-bottom: 1px solid #e0e0e0;
 }
-
-.code-folder-tree, .code-content {
+ 
+.code-folder-tree,
+.code-content {
   flex-grow: 1;
   overflow-y: auto;
   border: none;
   padding: 10px;
-  font-family: 'Courier New', monospace;
+  font-family: Arial, sans-serif;
   font-size: 14px;
   line-height: 1.5;
   background-color: white;
+  box-sizing: border-box;
 }
-
+ 
 .code-tree {
-  list-style-type: none;
+  list-style-type: none; /* Remove default bullets/dashes */
   padding-left: 0;
   margin: 0;
 }
-
+ 
 .code-tree li {
   position: relative;
+  padding-left: 20px;
 }
-
+ 
 .code-tree li::before {
   content: "";
   position: absolute;
   top: 0;
-  left: -15px;
+  left: 0;
   bottom: 0;
   width: 1px;
-  background: #ccc;
+  background: #e0e0e0;
 }
-
+ 
 .code-tree li:last-child::before {
   height: 15px;
 }
-
+ 
 .code-tree-node {
   position: relative;
-  padding-left: 20px;
+  padding: 5px 0;
 }
-
+ 
 .code-tree-node::before {
   content: "";
   position: absolute;
-  top: 12px;
-  left: 0;
-  width: 15px;
+  top: 15px;
+  left: -20px;
+  width: 20px;
   height: 1px;
-  background: #ccc;
+  background: #e0e0e0;
 }
-
-.code-folder-icon, .code-file-icon {
+ 
+.code-folder-icon,
+.code-file-icon {
   display: inline-block;
   width: 20px;
   text-align: center;
   cursor: pointer;
+  color: #555555;
 }
-
+ 
 .code-folder-icon {
   font-weight: bold;
 }
-
+ 
 .code-file-icon {
   font-size: 0.8em;
 }
-
+ 
 .code-tree-node span {
   cursor: pointer;
+  color: #333333;
+  transition: color 0.3s;
 }
-
+ 
 .code-tree-node span:hover {
-  text-decoration: underline;
+  color: #007bff;
 }
-
-
-
-
+ 
+ 
+ 
 .processing-container {
   display: flex;
   align-items: center;
@@ -567,7 +592,7 @@ nav .blueprinting-sub-tab:focus {
   display: flex;
   align-items: center;
   /* padding: 10px; */
-  border: 2px solid #5d86c2; /* Green border */
+  border: 2px solid #00c853; /* Green border */
   border-radius: 8px;
   background-color: #ffffff; /* White background for the box */
   overflow: hidden; /* Hide overflowing content */
@@ -577,7 +602,7 @@ nav .blueprinting-sub-tab:focus {
 .loading-box {
   width: 20px;
   height: 20px;
-  background-color: #5d86c2; /* Green color */
+  background-color: #00c853; /* Green color */
   margin-right: 10px; /* Space between boxes */
   border-radius: 5px; /* Rounded corners for a modern look */
   animation: box-loading-animation 1.2s infinite;
@@ -616,4 +641,37 @@ nav .blueprinting-sub-tab:focus {
     transform: translateX(100px); /* Move out of view */
     opacity: 0;
   }
+}
+ 
+.checkbox-container {
+  margin-top: 15px;
+  display: flex;
+  align-items: center;
+}
+ 
+.checkbox-container label {
+  font-size: 14px; /* Smaller font size */
+  color: #333;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px; /* Less gap between checkbox and label */
+  font-style: italic; /* Italicize the label text */
+}
+ 
+.checkbox-container input[type="checkbox"] {
+  width: 16px; /* Smaller checkbox */
+  height: 16px;
+  cursor: pointer;
+  accent-color: #4caf50; /* Custom checkbox color */
+  border-radius: 3px; /* Slightly rounded corners */
+}
+ 
+.checkbox-container input[type="checkbox"]:hover {
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.2); /* Subtle hover effect */
+}
+ 
+.checkbox-container input[type="checkbox"]:checked {
+  background-color: #4caf50; /* Custom color when checked */
+  border-color: #4caf50;
 }

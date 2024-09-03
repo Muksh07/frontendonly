@@ -47,12 +47,12 @@
       <div class="processing-container">
         <div class="processing-container">
           <div class="processing-text">Processing . . . </div>
-          <div *ngIf="isAnalyzing" class="loading-box-container">
+          <div *ngIf="isAnalyzingBRD" class="loading-box-container">
             <div class="loading-box"></div>
             <!-- <div class="loading-box"></div>
             <div class="loading-box"></div> -->
           </div>
-          <div *ngIf="response">
+          <div *ngIf="responseBRD">
             <div class="response">RESPONSE RECEIVED</div>
           </div>
         </div>
@@ -78,8 +78,22 @@
         <textarea [(ngModel)]="technicalRequirement"></textarea>
       </div>
     </div>
+    <div class="processing-container">
+      <div class="processing-container">
+        <div class="processing-text">Processing . . . </div>
+        <div *ngIf="isAnalyzingSOL" class="loading-box-container">
+          <div class="loading-box"></div>
+          <!-- <div class="loading-box"></div>
+          <div class="loading-box"></div> -->
+        </div>
+        <div *ngIf="responseSOL">
+          <div class="response">RESPONSE RECEIVED</div>
+        </div>
+      </div>
+    </div>
     <div class="action-buttons">
       <button (click)="solidify()">Solidification</button>
+      
       
       
     </div>
@@ -153,6 +167,20 @@
       <textarea [(ngModel)]="databaseScripts" class="full-width-textarea"></textarea>
     </div>
 
+    <div class="processing-container">
+      <div class="processing-container">
+        <div class="processing-text">Processing . . . </div>
+        <div *ngIf="isAnalyzingBLU" class="loading-box-container">
+          <div class="loading-box"></div>
+          <!-- <div class="loading-box"></div>
+          <div class="loading-box"></div> -->
+        </div>
+        <div *ngIf="responseBLU">
+          <div class="response">RESPONSE RECEIVED</div>
+        </div>
+      </div>
+    </div>
+
     <div class="action-buttons">
       <button (click)="blueprinting()">Blueprinting</button> 
       
@@ -176,7 +204,7 @@
           ></ng-container>
         </div>
       </div>
-  
+   
       <div class="code-content-section">
         <h4>Content</h4>
         <textarea
@@ -186,12 +214,34 @@
         ></textarea>
       </div>
     </div>
-  
+   
+    <div class="checkbox-container">
+      <label>
+        <input type="checkbox" [(ngModel)]="isdescribe" [disabled]="loading" />
+        <span class="italic">describe</span>
+      </label>
+    </div>
+
+    <div class="processing-container">
+      <div class="processing-container">
+        <div class="processing-text">Processing . . . </div>
+        <div *ngIf="isAnalyzingCOD" class="loading-box-container">
+          <div class="loading-box"></div>
+          <!-- <div class="loading-box"></div>
+          <div class="loading-box"></div> -->
+        </div>
+        <div *ngIf="responseCOD">
+          <div class="response">RESPONSE RECEIVED</div>
+        </div>
+      </div>
+    </div>
+   
     <div class="action-buttons">
       <button (click)="startCodeSynthesis()">Code Synthesis</button>
-      <button (click)="startCodeSynthesistest()">Code Synthesis Test</button>
+      <!-- <button (click)="startCodeSynthesistest()">Code Synthesis Test</button> -->
+      <button (click)="downloadZip()">Download Folder Structure</button>
     </div>
-  
+   
     <div class="token-counts">No. of Tokens: {{ tokenCount }}</div>
     <div class="token-counts">
       <div class="token-count" style="display: flex; gap: 10px">
@@ -200,30 +250,36 @@
         <span>TotalTokens: {{ totalTokens }}</span>
       </div>
     </div>
-  
+   
     <ng-template #codeFolderTemplate let-items let-level="level">
       <ul class="code-tree">
-        <li *ngFor="let item of items; let last = last" [class.last-child]="last">
+        <li
+          *ngFor="let item of items; let last = last"
+          [class.last-child]="last"
+        >
           <div class="code-tree-node" [style.padding-left.px]="level * 20">
             <span
               *ngIf="item.type === 'folder'"
               class="code-folder-icon"
               (click)="toggleCodeFolder(item)"
             >
-              {{ item.expanded ? '[-]' : '[+]' }}
+              {{ item.expanded ? "[-]" : "[+]" }}
             </span>
             <span
-              *ngIf="item.type === 'file' && item.code && item.description"
+              *ngIf="item.type === 'file' && (item.code || item.description)"
               class="code-file-icon"
               (click)="toggleCodeFile(item)"
             >
-              {{ item.expanded ? '[-]' : '[+]' }}
+              {{ item.expanded ? "[-]" : "[+]" }}
             </span>
-            <span *ngIf="item.type === 'file' " class="code-file-icon">
+            <span
+              *ngIf="item.type === 'file' && !(item.code || item.description)"
+              class="code-file-icon"
+            >
               &#9679;
             </span>
             <span (click)="showCodeContent(item.content)">
-{{ item.name }}
+  {{ item.name }}
             </span>
           </div>
           <ng-container *ngIf="item.type === 'folder' && item.expanded">
@@ -234,16 +290,28 @@
               "
             ></ng-container>
           </ng-container>
-          <ng-container *ngIf="item.type === 'file' && item.expanded && item.code && item.description">
+          <ng-container
+            *ngIf="
+              item.type === 'file' &&
+              item.expanded &&
+              (item.code || item.description)
+            "
+          >
             <ul class="code-tree">
-              <li>
-                <div class="code-tree-node" [style.padding-left.px]="(level + 1) * 20">
+              <li *ngIf="item.code">
+                <div
+                  class="code-tree-node"
+                  [style.padding-left.px]="(level + 1) * 20"
+                >
                   <span class="code-file-icon">&#9679;</span>
                   <span (click)="showCodeContent(item.code)">code</span>
                 </div>
               </li>
-              <li>
-                <div class="code-tree-node" [style.padding-left.px]="(level + 1) * 20">
+              <li *ngIf="item.description">
+                <div
+                  class="code-tree-node"
+                  [style.padding-left.px]="(level + 1) * 20"
+                >
                   <span class="code-file-icon">&#9679;</span>
                   <span (click)="showCodeContent(item.description)">description</span>
                 </div>

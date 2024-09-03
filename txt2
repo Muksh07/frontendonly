@@ -1,557 +1,137 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using backend.Models;
-using Microsoft.AspNetCore.Mvc;
-using GPTService.Core;
-using backend.Service;
-using System.Collections;
-using Newtonsoft.Json.Serialization;
-using System.Linq.Expressions;
+1. Solution Overview
+Application Name: ToDOApp
+Architecture: Monolithic architecture using Windows Forms or WPF for frontend, .NET Core or .NET Framework for backend, and SQL Server for database.
+Technology Stack: Windows Forms/WPF, .NET Core/.NET Framework, SQL Server, NUnit
+Data Requirements:
+Task Data: ID (int), Title (string), Description (string), Status (string), Creation Date (DateTime), Modification Date (DateTime)
+User Data: Username (string), Hashed Password (string)
+Solution Structure: 
+Frontend: Windows Forms or WPF for user interface
+Backend: .NET Core or .NET Framework for task and user management services
+Data Access Layer: SQL Server integration for performing CRUD operations
+Unit Testing: NUnit for backend services and data access layer
 
+2. Solution Structure
+Solution Name: ToDOApp
+Root Folder: ToDOApp
 
-namespace backend.Controllers.BRD
-{
+Project Name: Frontend
+Project Path: ToDOApp/Frontend
+File Name: LoginToDO.cs (C#, Windows Forms/WPF, Handles user authentication)
+Methods: ValidateUser (Validates login credentials, Input: Username, Password, Output: Boolean)
+Data Validation: Ensures username and password are not empty
+Error Handling: Catches and logs authentication errors
+Logging: Logs successful and failed login attempts
+Interactions and Dependencies: Interacts with Backend services for authentication
+Integration Points: Backend/LoginService.cs
 
-    [ApiController]
-    [Route("api/[controller]")]
-    public class BRDAnalyzerController : ControllerBase
-    {
+File Name: TaskCreationForm.cs (C#, Windows Forms/WPF, Form for creating new tasks)
+Methods: CreateTask (Creates a new task, Input: Task Data, Output: Boolean)
+Data Validation: Validates task data fields
+Error Handling: Catches and logs task creation errors
+Logging: Logs task creation attempts
+Interactions and Dependencies: Interacts with Backend services for task creation
+Integration Points: Backend/TaskServiceCreation.cs
 
-        private readonly HttpClient _httpClient;
-        GPTService.Core.GPTService gPTService = new GPTService.Core.GPTService { };
-        Functionality _functionality = new Functionality();
-        public BRDAnalyzerController(HttpClient httpClient)
-        {
-            _httpClient = httpClient;
-        }
+File Name: TaskListingForm.cs (C#, Windows Forms/WPF, Form for listing and managing tasks)
+Methods: GetTasks (Fetches list of tasks, Input: None, Output: List of Tasks)
+Data Validation: None
+Error Handling: Catches and logs fetching errors
+Logging: Logs task fetching attempts
+Interactions and Dependencies: Interacts with Backend services for task listing
+Integration Points: Backend/TaskServiceListing.cs
 
-        [HttpPost("analyse")]
-        public async Task<IActionResult> AnalyzeBRD([FromBody] BRDRequestModel request)
-        {
-            if (string.IsNullOrEmpty(request.brdContent) || string.IsNullOrEmpty(request.task))
-            {
-                return BadRequest("Please provide Business Requirement and Task to perform");
-            }
-            try
-            {
-                string strtask = request.task.Trim().ToLower();
-                if (strtask.StartsWith("new:"))
-                {
-                    strtask = request.task.Trim();
-                }
-                else
-                {
-                    strtask = request.task.Trim() + "and provide solution with project folder, file structure , provide response without any extra symbols but bulleted points, using format\r\n";
-                }
+File Name: TaskEditForm.cs (C#, Windows Forms/WPF, Form for editing existing tasks)
+Methods: EditTask (Edits an existing task, Input: Task Data, Output: Boolean)
+Data Validation: Validates task data fields
+Error Handling: Catches and logs task editing errors
+Logging: Logs task editing attempts
+Interactions and Dependencies: Interacts with Backend services for task editing
+Integration Points: Backend/TaskServiceEdit.cs
 
-                var result = await _functionality.AnalyzeBRD(request.brdContent, strtask + gPTService.GetPromptTask(0), 0);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
-        }
+Project Name: Backend
+Project Path: ToDOApp/Backend
+File Name: LoginService.cs (C#, .NET Core/.NET Framework, Handles user login validation)
+Methods: ValidateLogin (Validates user login, Input: Username, Password, Output: Boolean)
+Data Validation: Ensures username and password are not empty
+Error Handling: Catches and logs validation errors
+Logging: Logs login validation attempts
+Interactions and Dependencies: Interacts with DataAccess/UserRepository.cs
+Integration Points: DataAccess/UserRepository.cs
 
+File Name: TaskServiceCreation.cs (C#, .NET Core/.NET Framework, Manages task creation operations)
+Methods: CreateTask (Creates a new task, Input: Task Data, Output: Boolean)
+Data Validation: Validates task data fields
+Error Handling: Catches and logs creation errors
+Logging: Logs task creation attempts
+Interactions and Dependencies: Interacts with DataAccess/TaskRepository.cs
+Integration Points: DataAccess/TaskRepository.cs
 
+File Name: TaskServiceListing.cs (C#, .NET Core/.NET Framework, Manages task listing operations)
+Methods: GetTasks (Fetches list of tasks, Input: None, Output: List of Tasks)
+Data Validation: None
+Error Handling: Catches and logs listing errors
+Logging: Logs task listing attempts
+Interactions and Dependencies: Interacts with DataAccess/TaskRepository.cs
+Integration Points: DataAccess/TaskRepository.cs
 
+File Name: TaskServiceEdit.cs (C#, .NET Core/.NET Framework, Manages task editing operations)
+Methods: EditTask (Edits an existing task, Input: Task Data, Output: Boolean)
+Data Validation: Validates task data fields
+Error Handling: Catches and logs editing errors
+Logging: Logs task editing attempts
+Interactions and Dependencies: Interacts with DataAccess/TaskRepository.cs
+Integration Points: DataAccess/TaskRepository.cs
 
+Project Name: DataAccess
+Project Path: ToDOApp/DataAccess
+File Name: ApplicationDbContext.cs (C#, .NET Core/.NET Framework, Configures database context)
+Methods: None
+Data Validation: Ensures proper database configuration
+Error Handling: Catches and logs configuration errors
+Logging: Logs database context operations
+Interactions and Dependencies: Interacts with SQL Server
+Integration Points: SQL Server
 
-        [HttpPost("solidify")]
-        public async Task<ActionResult<SolidificationResponseModel>> SolidifyBRD([FromBody] SolidificationRequestModel request)
-        {
-            if (string.IsNullOrEmpty(request.AnalysisResult))
-            {
-                return BadRequest("Please provide Business Requirement and Task to perform");
-            }
-            try
-            {
-                var result = await _functionality.AnalyzeBRD(request.AnalysisResult, gPTService.GetPromptTask(1), 1);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
-        }
+File Name: TaskRepository.cs (C#, .NET Core/.NET Framework, Handles CRUD operations for tasks)
+Methods: AddTask, GetTasks, UpdateTask, DeleteTask (CRUD operations for tasks)
+Data Validation: Ensures task data fields are valid
+Error Handling: Catches and logs CRUD operation errors
+Logging: Logs CRUD operations for tasks
+Interactions and Dependencies: Interacts with ApplicationDbContext.cs
+Integration Points: ApplicationDbContext.cs
 
+File Name: UserRepository.cs (C#, .NET Core/.NET Framework, Manages user-related data)
+Methods: ValidateUser, AddUser (Handles user authentication and creation)
+Data Validation: Ensures user data fields are valid
+Error Handling: Catches and logs user data operation errors
+Logging: Logs user data operations
+Interactions and Dependencies: Interacts with ApplicationDbContext.cs
+Integration Points: ApplicationDbContext.cs
 
-        [HttpPost("BluePrinting")]
-        public async Task<ActionResult<SolidificationResponseModel>> Blueprinting([FromBody] SolidificationResponseModel request)
-        {
-            if (string.IsNullOrEmpty(request.SolidificationOutput))
-            {
-                return BadRequest("Please provide Business Requirement and Task to perform");
-            }
-            try
-            {
-                //summary
+File Name: Task.cs (C#, .NET Core/.NET Framework, Defines the Task model)
+Methods: None
+Data Validation: Ensures task model integrity
+Error Handling: None
+Logging: None
+Interactions and Dependencies: None
+Integration Points: None
 
-                string RequirementSummary = await _functionality.AnalyzeBRD(request.SolidificationOutput, gPTService.GetPromptTask(2), 2);
+File Name: User.cs (C#, .NET Core/.NET Framework, Defines the User model)
+Methods: None
+Data Validation: Ensures user model integrity
+Error Handling: None
+Logging: None
+Interactions and Dependencies: None
+Integration Points: None
 
-                var result = _functionality.GenerateBluePrintDetails("summary", request.SolidificationOutput.Trim().ToLower());
+3. Data Flow
+User initiates action via Frontend (Windows Forms/WPF) -> Backend Services (.NET Core/.NET Framework) -> Data Access Layer -> SQL Server -> Response back through Data Access Layer -> Backend Services -> Frontend
 
-                result["requirementSummary"] = RequirementSummary;
-
-                //Unit Testing
-                var prompttext = "Solution Overview:\n" + result["solutionOverview"].Trim() + "\nProject Structure:\n" + result["projectStructure"].Trim();
-                string unitTesting = await _functionality.AnalyzeBRD(prompttext, gPTService.GetPromptTask(5), 2);
-                result["unitTesting"] = unitTesting;
-
-                // Database Script
-                var prompttext2 = "Solution Overview:\n" + result["solutionOverview"].Trim() + "\n Project Structure:\n" + result["projectStructure"].Trim();
-                string dbscripts = await _functionality.AnalyzeBRD(prompttext, gPTService.GetPromptTask(3), 2);
-                result["databaseScripts"] = dbscripts;
-
-
-
-                //Console.WriteLine("temp",temp);
-                //var jsonPrompt = "Create folder tree structure and return response in json format";
-                //result["projectStructure"] =  await _functionality.AnalyzeBRD(temp, jsonPrompt, 0);
-
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
-        }
-
-
-        [HttpPost]
-        [Route("CodeSynthesis")]
-        public async Task<ActionResult<string>> CodeSynthesis([FromBody] CodeSynthesisRequestModel requestModel)
-        {
-            
-            
-            Console.WriteLine("before try Filename:", requestModel.filename);
-            Console.WriteLine("before try Content:", requestModel.filecontent);
-
-            try
-            {
-                string generatedCode = string.Empty;
-                switch (requestModel.i)
-                {
-                    case 0:
-                        Console.WriteLine("Filename:", requestModel.filename);
-                        Console.WriteLine("Content:", requestModel.filecontent);
-                        var prompttext0 = _functionality.GetPromptText(requestModel.filename, requestModel.filecontent);
-                        Console.WriteLine("prompttext0", prompttext0);
-                        generatedCode = await _functionality.AnalyzeBRD(prompttext0, gPTService.GetPromptTask(4), 3);
-                        break;
-
-                    case 1:  // DataBase
-                        var prompttext1 = _functionality.GetPromptText(requestModel.filename, requestModel.filecontent);
-                        Console.WriteLine("prompttext1", prompttext1);
-                        generatedCode = await _functionality.AnalyzeBRD(prompttext1, gPTService.GetPromptTask(6), 3);
-                        break;
-
-                    case 2:   // Unit testing
-                        var prompttext2 = _functionality.GetPromptText(requestModel.filename, requestModel.filecontent);
-                        Console.WriteLine("prompttext2", prompttext2);
-                        generatedCode = await _functionality.AnalyzeBRD(prompttext2, gPTService.GetPromptTask(7), 3);
-                        break;
-
-                    case 3:  // Describe the code
-                        var prompttext3 = requestModel.filecontent;
-                        Console.WriteLine("prompttext3", prompttext3);
-                        generatedCode = await _functionality.AnalyzeBRD(prompttext3, gPTService.GetPromptTask(8), 3);
-                        break;
-
-                    default:
-                        return BadRequest("Invalid case value");
-                }
-
-                Console.WriteLine("generatedcode", generatedCode);
-                return Ok(generatedCode);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
-        }
-    }
-}
-
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace backend.Models
-{
-    public class CodeSynthesisRequestModel
-    {
-        public string? filename { get; set; }
-        public string? filecontent { get; set; }
-        public int i { get; set; }
-    }
-}
-
-
-
-using backend.Service;
-
-var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddControllers();
-builder.Services.AddCors();
-builder.Services.AddTransient<Functionality>();
-builder.Services.AddHttpClient(); 
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
-var app = builder.Build();
-
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
-app.UseHttpsRedirection();
-
-app.UseCors(x => x
-.AllowAnyHeader()
-.AllowAnyMethod()
-.AllowAnyOrigin()
-);
-
-app.UseAuthorization();
-app.MapControllers();
-
-app.Run();
-
-
-
-
-
-requestBody : 
-{filename: 'user.cs', filecontent: 'coding language: c#\ntechnology stack: .net core/.n…cationdbcontext.cs\nintegration points: sql server', i: 0}
-filecontent
-: 
-"coding language: c#\ntechnology stack: .net core/.net framework, entity framework core\nfile purpose and context: defines the user model\nmethods: none\ndata validation: ensure user properties are valid\nerror handling: none\nlogging: none\ninteractions and dependencies: interacts with applicationdbcontext.cs\nintegration points: sql server"
-filename
-: 
-"user.cs"
-i
-: 
-0
-
-
-result Please provide Business Requirement and Task to perform
-
-
-http://localhost:5192/api/BRDAnalyzer/CodeSynthesis 500 (Internal Server Error)
-scheduleTask @ zone.js:2183
-scheduleTask @ zone.js:388
-onScheduleTask @ core.mjs:14551
-scheduleTask @ zone.js:382
-onScheduleTask @ zone.js:271
-scheduleTask @ zone.js:382
-scheduleTask @ zone.js:205
-scheduleMacroTask @ zone.js:228
-scheduleMacroTaskWithCurrentZone @ zone.js:691
-(anonymous) @ zone.js:2222
-proto.<computed> @ zone.js:1003
-(anonymous) @ http.mjs:2378
-Observable2._trySubscribe @ Observable.js:38
-(anonymous) @ Observable.js:32
-errorContext @ errorContext.js:19
-Observable2.subscribe @ Observable.js:23
-(anonymous) @ switchMap.js:14
-OperatorSubscriber2._this._next @ OperatorSubscriber.js:15
-Subscriber2.next @ Subscriber.js:34
-(anonymous) @ innerFrom.js:51
-Observable2._trySubscribe @ Observable.js:38
-(anonymous) @ Observable.js:32
-errorContext @ errorContext.js:19
-Observable2.subscribe @ Observable.js:23
-(anonymous) @ switchMap.js:10
-(anonymous) @ lift.js:10
-(anonymous) @ Observable.js:27
-errorContext @ errorContext.js:19
-Observable2.subscribe @ Observable.js:23
-(anonymous) @ finalize.js:5
-(anonymous) @ lift.js:10
-(anonymous) @ Observable.js:27
-errorContext @ errorContext.js:19
-Observable2.subscribe @ Observable.js:23
-doInnerSub @ mergeInternals.js:19
-outerNext @ mergeInternals.js:14
-OperatorSubscriber2._this._next @ OperatorSubscriber.js:15
-Subscriber2.next @ Subscriber.js:34
-(anonymous) @ innerFrom.js:51
-Observable2._trySubscribe @ Observable.js:38
-(anonymous) @ Observable.js:32
-errorContext @ errorContext.js:19
-Observable2.subscribe @ Observable.js:23
-mergeInternals @ mergeInternals.js:53
-(anonymous) @ mergeMap.js:14
-(anonymous) @ lift.js:10
-(anonymous) @ Observable.js:27
-errorContext @ errorContext.js:19
-Observable2.subscribe @ Observable.js:23
-(anonymous) @ filter.js:6
-(anonymous) @ lift.js:10
-(anonymous) @ Observable.js:27
-errorContext @ errorContext.js:19
-Observable2.subscribe @ Observable.js:23
-(anonymous) @ map.js:6
-(anonymous) @ lift.js:10
-(anonymous) @ Observable.js:27
-errorContext @ errorContext.js:19
-Observable2.subscribe @ Observable.js:23
-startCodeSynthesis @ app.component.ts:105
-AppComponent_div_7_Template_button_click_12_listener @ app.component.html:191
-executeListenerWithErrorHandling @ core.mjs:25638
-wrapListenerIn_markDirtyAndPreventDefault @ core.mjs:25672
-(anonymous) @ platform-browser.mjs:749
-invokeTask @ zone.js:402
-(anonymous) @ core.mjs:14556
-onInvokeTask @ core.mjs:14556
-invokeTask @ zone.js:401
-onInvokeTask @ core.mjs:14869
-invokeTask @ zone.js:401
-runTask @ zone.js:159
-invokeTask @ zone.js:483
-invokeTask @ zone.js:1138
-globalCallback @ zone.js:1169
-globalZoneAwareCallback @ zone.js:1202
-Zone - HTMLButtonElement.addEventListener:click
-onScheduleTask @ core.mjs:14550
-scheduleTask @ zone.js:382
-onScheduleTask @ zone.js:271
-scheduleTask @ zone.js:382
-scheduleTask @ zone.js:205
-scheduleEventTask @ zone.js:231
-(anonymous) @ zone.js:1499
-addEventListener @ platform-browser.mjs:850
-addEventListener @ platform-browser.mjs:210
-listen @ platform-browser.mjs:731
-listenerInternal @ core.mjs:25599
-ɵɵlistener @ core.mjs:25480
-AppComponent_div_7_Template @ app.component.html:191
-executeTemplate @ core.mjs:11268
-renderView @ core.mjs:12470
-createAndRenderEmbeddedLView @ core.mjs:12540
-createEmbeddedViewImpl @ core.mjs:13393
-createEmbeddedView @ core.mjs:16191
-_updateView @ common.mjs:3695
-set ngIf @ common.mjs:3669
-applyValueToInputField @ core.mjs:4035
-writeToDirectiveInput @ core.mjs:11096
-setInputsForProperty @ core.mjs:12391
-elementPropertyInternal @ core.mjs:11692
-ɵɵproperty @ core.mjs:21289
-AppComponent_Template @ app.component.html:166
-executeTemplate @ core.mjs:11268
-refreshView @ core.mjs:12791
-detectChangesInView$1 @ core.mjs:13015
-detectChangesInViewIfAttached @ core.mjs:12978
-detectChangesInComponent @ core.mjs:12967
-detectChangesInChildComponents @ core.mjs:13028
-refreshView @ core.mjs:12841
-detectChangesInView$1 @ core.mjs:13015
-detectChangesInViewWhileDirty @ core.mjs:12732
-detectChangesInternal @ core.mjs:12714
-detectChangesInView @ core.mjs:31734
-detectChangesInViewIfRequired @ core.mjs:31707
-detectChangesInAttachedViews @ core.mjs:31562
-_tick @ core.mjs:31532
-tick @ core.mjs:31521
-(anonymous) @ core.mjs:31902
-invoke @ zone.js:369
-onInvoke @ core.mjs:14882
-invoke @ zone.js:368
-run @ zone.js:111
-run @ core.mjs:14733
-next @ core.mjs:31901
-ConsumerObserver2.next @ Subscriber.js:96
-Subscriber2._next @ Subscriber.js:63
-Subscriber2.next @ Subscriber.js:34
-(anonymous) @ Subject.js:41
-errorContext @ errorContext.js:19
-Subject2.next @ Subject.js:31
-emit @ core.mjs:6845
-checkStable @ core.mjs:14801
-onLeave @ core.mjs:14932
-onInvokeTask @ core.mjs:14876
-invokeTask @ zone.js:401
-runTask @ zone.js:159
-invokeTask @ zone.js:483
-invokeTask @ zone.js:1138
-globalCallback @ zone.js:1169
-globalZoneAwareCallback @ zone.js:1202
-Show 135 more frames
-Show less
-app.component.ts:111  Error during code generation: HttpErrorResponse {headers: _HttpHeaders, status: 500, statusText: 'Internal Server Error', url: 'http://localhost:5192/api/BRDAnalyzer/CodeSynthesis', ok: false, …}error: "Internal server error: 'System.Text.Json.JsonElement' does not contain a definition for 'name'"headers: _HttpHeaders {normalizedNames: Map(0), lazyUpdate: null, lazyInit: ƒ}message: "Http failure response for http://localhost:5192/api/BRDAnalyzer/CodeSynthesis: 500 Internal Server Error"name: "HttpErrorResponse"ok: falsestatus: 500statusText: "Internal Server Error"url: "http://localhost:5192/api/BRDAnalyzer/CodeSynthesis"[[Prototype]]: HttpResponseBase
-(anonymous) @ app.component.ts:111
-ConsumerObserver2.error @ Subscriber.js:107
-Subscriber2._error @ Subscriber.js:67
-Subscriber2.error @ Subscriber.js:43
-Subscriber2._error @ Subscriber.js:67
-Subscriber2.error @ Subscriber.js:43
-Subscriber2._error @ Subscriber.js:67
-Subscriber2.error @ Subscriber.js:43
-Subscriber2._error @ Subscriber.js:67
-Subscriber2.error @ Subscriber.js:43
-Subscriber2._error @ Subscriber.js:67
-Subscriber2.error @ Subscriber.js:43
-onLoad @ http.mjs:2289
-invokeTask @ zone.js:402
-(anonymous) @ core.mjs:14556
-onInvokeTask @ core.mjs:14556
-invokeTask @ zone.js:401
-onInvokeTask @ core.mjs:14869
-invokeTask @ zone.js:401
-runTask @ zone.js:159
-invokeTask @ zone.js:483
-invokeTask @ zone.js:1138
-globalCallback @ zone.js:1181
-globalZoneAwareCallback @ zone.js:1202
-Zone - XMLHttpRequest.addEventListener:load
-onScheduleTask @ core.mjs:14550
-scheduleTask @ zone.js:382
-onScheduleTask @ zone.js:271
-scheduleTask @ zone.js:382
-scheduleTask @ zone.js:205
-scheduleEventTask @ zone.js:231
-(anonymous) @ zone.js:1499
-(anonymous) @ http.mjs:2364
-Observable2._trySubscribe @ Observable.js:38
-(anonymous) @ Observable.js:32
-errorContext @ errorContext.js:19
-Observable2.subscribe @ Observable.js:23
-(anonymous) @ switchMap.js:14
-OperatorSubscriber2._this._next @ OperatorSubscriber.js:15
-Subscriber2.next @ Subscriber.js:34
-(anonymous) @ innerFrom.js:51
-Observable2._trySubscribe @ Observable.js:38
-(anonymous) @ Observable.js:32
-errorContext @ errorContext.js:19
-Observable2.subscribe @ Observable.js:23
-(anonymous) @ switchMap.js:10
-(anonymous) @ lift.js:10
-(anonymous) @ Observable.js:27
-errorContext @ errorContext.js:19
-Observable2.subscribe @ Observable.js:23
-(anonymous) @ finalize.js:5
-(anonymous) @ lift.js:10
-(anonymous) @ Observable.js:27
-errorContext @ errorContext.js:19
-Observable2.subscribe @ Observable.js:23
-doInnerSub @ mergeInternals.js:19
-outerNext @ mergeInternals.js:14
-OperatorSubscriber2._this._next @ OperatorSubscriber.js:15
-Subscriber2.next @ Subscriber.js:34
-(anonymous) @ innerFrom.js:51
-Observable2._trySubscribe @ Observable.js:38
-(anonymous) @ Observable.js:32
-errorContext @ errorContext.js:19
-Observable2.subscribe @ Observable.js:23
-mergeInternals @ mergeInternals.js:53
-(anonymous) @ mergeMap.js:14
-(anonymous) @ lift.js:10
-(anonymous) @ Observable.js:27
-errorContext @ errorContext.js:19
-Observable2.subscribe @ Observable.js:23
-(anonymous) @ filter.js:6
-(anonymous) @ lift.js:10
-(anonymous) @ Observable.js:27
-errorContext @ errorContext.js:19
-Observable2.subscribe @ Observable.js:23
-(anonymous) @ map.js:6
-(anonymous) @ lift.js:10
-(anonymous) @ Observable.js:27
-errorContext @ errorContext.js:19
-Observable2.subscribe @ Observable.js:23
-startCodeSynthesis @ app.component.ts:105
-AppComponent_div_7_Template_button_click_12_listener @ app.component.html:191
-executeListenerWithErrorHandling @ core.mjs:25638
-wrapListenerIn_markDirtyAndPreventDefault @ core.mjs:25672
-(anonymous) @ platform-browser.mjs:749
-invokeTask @ zone.js:402
-(anonymous) @ core.mjs:14556
-onInvokeTask @ core.mjs:14556
-invokeTask @ zone.js:401
-onInvokeTask @ core.mjs:14869
-invokeTask @ zone.js:401
-runTask @ zone.js:159
-invokeTask @ zone.js:483
-invokeTask @ zone.js:1138
-globalCallback @ zone.js:1169
-globalZoneAwareCallback @ zone.js:1202
-Zone - HTMLButtonElement.addEventListener:click
-onScheduleTask @ core.mjs:14550
-scheduleTask @ zone.js:382
-onScheduleTask @ zone.js:271
-scheduleTask @ zone.js:382
-scheduleTask @ zone.js:205
-scheduleEventTask @ zone.js:231
-(anonymous) @ zone.js:1499
-addEventListener @ platform-browser.mjs:850
-addEventListener @ platform-browser.mjs:210
-listen @ platform-browser.mjs:731
-listenerInternal @ core.mjs:25599
-ɵɵlistener @ core.mjs:25480
-AppComponent_div_7_Template @ app.component.html:191
-executeTemplate @ core.mjs:11268
-renderView @ core.mjs:12470
-createAndRenderEmbeddedLView @ core.mjs:12540
-createEmbeddedViewImpl @ core.mjs:13393
-createEmbeddedView @ core.mjs:16191
-_updateView @ common.mjs:3695
-set ngIf @ common.mjs:3669
-applyValueToInputField @ core.mjs:4035
-writeToDirectiveInput @ core.mjs:11096
-setInputsForProperty @ core.mjs:12391
-elementPropertyInternal @ core.mjs:11692
-ɵɵproperty @ core.mjs:21289
-AppComponent_Template @ app.component.html:166
-executeTemplate @ core.mjs:11268
-refreshView @ core.mjs:12791
-detectChangesInView$1 @ core.mjs:13015
-detectChangesInViewIfAttached @ core.mjs:12978
-detectChangesInComponent @ core.mjs:12967
-detectChangesInChildComponents @ core.mjs:13028
-refreshView @ core.mjs:12841
-detectChangesInView$1 @ core.mjs:13015
-detectChangesInViewWhileDirty @ core.mjs:12732
-detectChangesInternal @ core.mjs:12714
-detectChangesInView @ core.mjs:31734
-detectChangesInViewIfRequired @ core.mjs:31707
-detectChangesInAttachedViews @ core.mjs:31562
-_tick @ core.mjs:31532
-tick @ core.mjs:31521
-(anonymous) @ core.mjs:31902
-invoke @ zone.js:369
-onInvoke @ core.mjs:14882
-invoke @ zone.js:368
-run @ zone.js:111
-run @ core.mjs:14733
-next @ core.mjs:31901
-ConsumerObserver2.next @ Subscriber.js:96
-Subscriber2._next @ Subscriber.js:63
-Subscriber2.next @ Subscriber.js:34
-(anonymous) @ Subject.js:41
-errorContext @ errorContext.js:19
-Subject2.next @ Subject.js:31
-emit @ core.mjs:6845
-checkStable @ core.mjs:14801
-onLeave @ core.mjs:14932
-onInvokeTask @ core.mjs:14876
-invokeTask @ zone.js:401
-runTask @ zone.js:159
-invokeTask @ zone.js:483
-invokeTask @ zone.js:1138
-globalCallback @ zone.js:1169
-globalZoneAwareCallback @ zone.js:1202
-Show 154 more frames
-Show less
+4. Common Functionalities
+User Authentication
+CRUD Operations for Tasks
+Profile Management
+Data Validation
+Error Handling
+Logging

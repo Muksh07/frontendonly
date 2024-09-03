@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../Services/api.service';
 import { take } from 'rxjs';
+import {saveAs} from 'file-saver';
+import JSZip from 'jszip';
 
 @Component({
   selector: 'app-root',
@@ -52,6 +54,21 @@ export class AppComponent {
   databasetree: any;
   datascripttree: any;
   unittestingtree: any;
+  loading: boolean = false;
+  isdescribe: boolean = false;
+
+  //variables for processing
+  isAnalyzingCOD : boolean = false;
+  responseCOD : boolean = false;
+  isAnalyzingBRD : boolean = false;
+  responseBRD : boolean = false;
+  isAnalyzingSOL : boolean = false;
+  responseSOL : boolean = false;
+  isAnalyzingBLU : boolean = false;
+  responseBLU : boolean = false;
+
+
+
 
   constructor(private apiService: ApiService) {}
 
@@ -86,32 +103,36 @@ export class AppComponent {
     this.setActiveBlueprintingSubTab('Requirement Summary');
   }
 
-  // startCodeSynthesis()
-  // {
-  //   //this.traverseAndUpdateFolderStructure(this.codeSynthesisFolderStructure[0]);
-  //   this.apiService.Codesynthesis(this.codeSynthesisFolderStructure[0]).subscribe(
-  //               (response) => {
-  //                 console.log("result", response);
-  //                 this.codeSynthesisFolderStructure[0] = response;
-  //               },
-  //               (error) => {
-  //                 console.error('Error during codegeneration:', error);
-  //               }
-  //             );
-  // }
-  startCodeSynthesis() {
-    this.apiService
-      .Codesynthesis(this.codeSynthesisFolderStructure[0])
-      .subscribe(
-        (response) => {
-          console.log('result', response);
-          this.codeSynthesisFolderStructure[0] = response;
-        },
-        (error) => {
-          console.error('Error during code generation:', error);
-        }
-      );
+  startCodeSynthesis() 
+  {
+    this.isAnalyzingCOD = true;
+    this.responseCOD = false;
+
+    this.loading = true;
+    this.traverseAndUpdateFolderStructure(this.codeSynthesisFolderStructure[0]);
+    this.logUpdatedFolderStructure();
+    // this.codeSynthesisContent = `Blueprint:\n${this.blueprintingContent}`;
+    // this.setActiveTab('Code Synthesis');
+    this.isAnalyzingCOD = false;
+    this.responseCOD = true;
   }
+  logUpdatedFolderStructure() {
+    console.log('Updated Folder Structure:', JSON.stringify(this.codeSynthesisFolderStructure, null, 2));
+  }
+
+  // startCodeSynthesis() {
+  //   this.apiService
+  //     .Codesynthesis(this.codeSynthesisFolderStructure[0])
+  //     .subscribe(
+  //       (response) => {
+  //         console.log('result', response);
+  //         this.codeSynthesisFolderStructure[0] = response;
+  //       },
+  //       (error) => {
+  //         console.error('Error during code generation:', error);
+  //       }
+  //     );
+  // }
   uploadBRD() {
     const input = document.createElement('input');
     input.type = 'file';
@@ -147,8 +168,8 @@ export class AppComponent {
   getTokenCount() {}
 
   analyzeBRD() {
-    this.isAnalyzing = true;
-    this.response = false;
+    this.isAnalyzingBRD = true;
+    this.responseBRD = false;
     this.apiService
       .APIanalyzeBRD('', this.inputText, this.taskInput)
       .pipe(take(1))
@@ -156,15 +177,15 @@ export class AppComponent {
         (response) => {
           this.outputText = response;
           if (this.outputText.length > 0) {
-            this.isAnalyzing = false;
-            this.response = true;
+            this.isAnalyzingBRD = false;
+            this.responseBRD = true;
           }
           // Stop the spinner after the response
         },
         (error) => {
           console.error('Error during BRD analysis:', error);
 
-          this.isAnalyzing = false; // Stop the spinner even if there's an error
+          this.isAnalyzingBRD = false; // Stop the spinner even if there's an error
         }
       );
   }
@@ -174,27 +195,31 @@ export class AppComponent {
 
   solidify() {
     // this.technicalRequirement = this.outputText;
-    this.isAnalyzing = true;
-    this.response = false;
+    this.isAnalyzingSOL = true;
+    this.responseSOL = false;
     //console.log(this.outputText,"this.outputtext");
     this.apiService.Solidify(this.outputText).subscribe(
       (response) => {
         this.technicalRequirement = response;
         if (this.technicalRequirement.length > 0) {
-          this.isAnalyzing = false;
-          this.response = true;
+          this.isAnalyzingSOL = false;
+          this.responseSOL = true;
         }
         // Stop the spinner after the response
       },
       (error) => {
         console.error('Error during Solidify:', error);
 
-        this.isAnalyzing = false; // Stop the spinner even if there's an error
+        this.isAnalyzingSOL = false; // Stop the spinner even if there's an error
+
       }
     );
   }
 
-  blueprinting() {
+  blueprinting() 
+  {
+    this.isAnalyzingBLU = true;
+    this.responseBLU = false;
     this.apiService.Blueprinting(this.technicalRequirement).subscribe(
       (response: { [key: string]: string }) => {
         this.solutionOverview = response['solutionOverview'];
@@ -213,9 +238,14 @@ export class AppComponent {
         this.createUnittesttree(this.unitTesting);
         this.createdatabasetree(this.databaseScripts);
         this.synfetchFolderStructure(this.projectStructure);
+       
+        this.isAnalyzingBLU = false;
+        this.responseBLU = true;
+        
       },
       (error) => {
         console.error('Error:', error);
+        this.isAnalyzingBLU = false;
         //Handle the error here
       }
     );
@@ -559,17 +589,23 @@ export class AppComponent {
     this.selectedCodeContent = content;
   }
 
+  // toggleCodeFile(item: any) {
+  //   if (item.type === 'file' && item.code && item.description) {
+  //     item.expanded = !item.expanded;
+  //   }
+  // }
   toggleCodeFile(item: any) {
-    if (item.type === 'file' && item.code && item.description) {
+    if( (item.type === 'file') && (item.code || item.description)) {
       item.expanded = !item.expanded;
     }
   }
 
+  showDescription= false;
+
   // async traverseAndUpdateFolderStructure(rootNode: any) {
   //   const stack = [{ node: rootNode, level: 0, parentfolder: '' }];
 
-  //   while (stack.length > 0)
-  //   {
+  //   while (stack.length > 0) {
   //     const { node, level, parentfolder } = stack.pop()!;
 
   //     console.log(
@@ -598,58 +634,55 @@ export class AppComponent {
 
   //     // Process file based on the parentfolder
   //     if (node.type === 'file') {
-  //       if (newParentFolder === 'UnitTest')
-  //       {
-  //       // console.log(`Processing UnitTest file: ${node.name}`);
-  //       //   (await this.apiService.Codesynthesis(node.name, node.content, 2)).subscribe(
-  //       //     (response) => {
-  //       //       console.log("result", response);
-  //       //       node.expanded = false;
-  //       //       node.code = response;
-  //       //       console.log(`Processed UnitTest file: ${node.name} at level ${level}`);
-  //       //       // Stop the spinner after the response
-  //       //     },
-  //       //     (error) => {
-  //       //       console.error('Error during codegeneration:', error);
-
-  //       //       //this.isAnalyzing = false; // Stop the spinner even if there's an error
-  //       //     }
-  //       //   );
-  //       //   console.log(
-  //       //     `Processed UnitTest file: ${node.name} at level ${level}`
-  //       //   );
-  //        }
-  //        else if (newParentFolder === 'DataScripting')
-  //       {
-  //       //   console.log(`Processing DataScripting file: ${node.name}`);
-  //       //   (await this.apiService.Codesynthesis(node.name, node.content, 1)).subscribe(
-  //       //     (response) => {
-  //       //       console.log("result", response);
-  //       //       node.expanded = false;
-  //       //       node.code = response;
-
-  //       //       console.log(`Processed DataScripting file: ${node.name} at level ${level}`);
-  //       //       // Stop the spinner after the response
-  //       //     },
-  //       //     (error) => {
-  //       //       console.error('Error during codegeneration:', error);
-
-  //       //       //this.isAnalyzing = false; // Stop the spinner even if there's an error
-  //       //     }
-  //       //   );
-  //       //   console.log(
-  //       //     `Processed DataScripting file: ${node.name} at level ${level}`
-  //       //   );
-  //       }
-  //       else {
+  //       if (newParentFolder === 'UnitTest') {
+  //         console.log(`Processing UnitTest file: ${node.name}`);
+  //           (await this.apiService.Codesynthesis(node.name, node.content, 2,this.dataFlow,this.solutionOverview)).subscribe(
+  //             (response) => {
+  //               console.log("result", response);
+  //               node.expanded = false;
+  //               node.code = response;
+  //               console.log(`Processed UnitTest file: ${node.name} at level ${level}`);
+  //               // Stop the spinner after the response
+  //             },
+  //             (error) => {
+  //               console.error('Error during codegeneration:', error);
+  //               //this.isAnalyzing = false; // Stop the spinner even if there's an error
+  //             }
+  //           );
+  //           console.log(
+  //             `Processed UnitTest file: ${node.name} at level ${level}`
+  //           );
+  //       } else if (newParentFolder === 'DataScripting') {
+  //           console.log(`Processing DataScripting file: ${node.name}`);
+  //           (await this.apiService.Codesynthesis(node.name, node.content, 1,this.dataFlow,this.solutionOverview)).subscribe(
+  //             (response) => {
+  //               console.log("result", response);
+  //               node.expanded = false;
+  //               node.code = response;
+  //               console.log(`Processed DataScripting file: ${node.name} at level ${level}`);
+  //               // Stop the spinner after the response
+  //             },
+  //             (error) => {
+  //               console.error('Error during codegeneration:', error);
+  //               //this.isAnalyzing = false; // Stop the spinner even if there's an error
+  //             }
+  //           );
+  //           console.log(
+  //             `Processed DataScripting file: ${node.name} at level ${level}`
+  //           );
+  //       } else {
   //         console.log(`Processing general file: ${node.name}`);
-  //         (await this.apiService.Codesynthesis(node.name, node.content, 0)).subscribe(
+  //         (
+  //           await this.apiService.Codesynthesis(node.name, node.content, 0,this.dataFlow,this.solutionOverview)
+  //         ).subscribe(
   //           (response) => {
-  //             console.log("result", response);
+  //             console.log('result', response);
   //             node.expanded = false;
   //             node.code = response;
 
-  //             console.log(`Processed general file: ${node.name} at level ${level}`);
+  //             console.log(
+  //               `Processed general file: ${node.name} at level ${level}`
+  //             );
   //             // Stop the spinner after the response
   //           },
   //           (error) => {
@@ -675,6 +708,197 @@ export class AppComponent {
   //     }
   //   }
   // }
+
+  traverseAndUpdateFolderStructure(node: any, level: number = 0, parentfolder: string = '') {
+    console.log(`Traversing: ${node.name}, Level: ${level}, Current Parent Folder: ${parentfolder}`);
+      
+        // Check if we're at level 2 and it's a folder named 'DataScripting' or 'UnitTest'
+        if (node.type === 'folder' && level === 2) {
+    if (node.name === 'DataScripting') { // Corrected to match the existing folder name
+            parentfolder = 'DataScripting';
+            console.log(`Found DataScripting folder at level 2, setting parentfolder to ${parentfolder}`);
+    } else if (node.name === 'UnitTest') {
+            parentfolder = 'UnitTest';
+            console.log(`Found UnitTest folder at level 2, setting parentfolder to ${parentfolder}`);
+          } else {
+             console.log(`At level 2, but folder name does not match: ${node.name}`);
+          }
+        }
+        
+      
+        // Process file based on the parentfolder
+        if (node.type === 'file') 
+        {
+          if (parentfolder === 'UnitTest') 
+          {
+             if(!this.isdescribe)
+              {
+                console.log(`Processing UnitTest file: ${node.name}`);
+                this.apiService.Codesynthesis(node.name, node.content, 2,this.dataFlow,this.solutionOverview).subscribe(
+                  (response) => {
+                    console.log("result", response);
+                    node.expanded = false;
+                    node.code = response;
+                    console.log(`Processed UnitTest file: ${node.name} at level ${level}`);
+                    // Stop the spinner after the response
+                  },
+                  (error) => {
+                    console.error('Error during codegeneration:', error);
+                    //this.isAnalyzing = false; // Stop the spinner even if there's an error
+                  }
+                );
+              }
+              if(this.isdescribe)
+              {
+                  this.apiService.Codesynthesis(node.name, node.content, 2,this.dataFlow,this.solutionOverview).subscribe(
+                    (response) => {
+                      console.log("result", response);
+                      node.expanded = false;
+                      node.code = response;
+                      console.log(`Processed UnitTest file: ${node.name} at level ${level}`);
+                      // Stop the spinner after the response
+                    },
+                    (error) => {
+                      console.error('Error during codegeneration:', error);
+                      //this.isAnalyzing = false; // Stop the spinner even if there's an error
+                    }
+                  );
+                  this.apiService.Codesynthesis(node.name, node.content, 3,this.dataFlow,this.solutionOverview).subscribe(
+                    (response) => {
+                      console.log("result", response);
+                      node.expanded = false;
+                      node.description = response;
+                      console.log(`Processed UnitTest file: ${node.name} at level ${level}`);
+                      // Stop the spinner after the response
+                    },
+                    (error) => {
+                      console.error('Error during codegeneration:', error);
+                      //this.isAnalyzing = false; // Stop the spinner even if there's an error
+                    }
+                  );
+
+                }
+             console.log(`Processed UnitTest file: ${node.name} at level ${level}`);
+          } 
+          else if (parentfolder === 'DataScripting') 
+          {
+            if(!this.isdescribe)
+            {
+              console.log(`Processing DataScripting file: ${node.name}`);
+              this.apiService.Codesynthesis(node.name, node.content, 1,this.dataFlow,this.solutionOverview).subscribe(
+                            (response) => {
+                              console.log("result", response);
+                              node.expanded = false;
+                              node.code = response;
+                              console.log(`Processed DataScripting file: ${node.name} at level ${level}`);
+                              // Stop the spinner after the response
+                            },
+                            (error) => {
+                              console.error('Error during codegeneration:', error);
+                              //this.isAnalyzing = false; // Stop the spinner even if there's an error
+                            }
+                          );
+
+              }
+              if(this.isdescribe)
+              {
+                console.log(`Processing DataScripting file: ${node.name}`);
+                this.apiService.Codesynthesis(node.name, node.content, 1,this.dataFlow,this.solutionOverview).subscribe(
+                            (response) => {
+                              console.log("result", response);
+                              node.expanded = false;
+                              node.code = response;
+                              console.log(`Processed DataScripting file: ${node.name} at level ${level}`);
+                              // Stop the spinner after the response
+                            },
+                            (error) => {
+                              console.error('Error during codegeneration:', error);
+                              //this.isAnalyzing = false; // Stop the spinner even if there's an error
+                            }
+                          );
+                          this.apiService.Codesynthesis(node.name, node.content, 3,this.dataFlow,this.solutionOverview).subscribe(
+                            (response) => {
+                              console.log("result", response);
+                              node.expanded = false;
+                              node.description = response;
+                              console.log(`Processed UnitTest file: ${node.name} at level ${level}`);
+                              // Stop the spinner after the response
+                            },
+                            (error) => {
+                              console.error('Error during codegeneration:', error);
+                              //this.isAnalyzing = false; // Stop the spinner even if there's an error
+                            }
+                          );
+                }
+              
+              console.log(`Processed DataScripting file: ${node.name} at level ${level}`);
+          } 
+          else 
+          {
+            if(!this.isdescribe)
+            {
+               console.log(`Processing general file: ${node.name}`);
+               this.apiService.Codesynthesis(node.name, node.content, 0,this.dataFlow,this.solutionOverview).subscribe(
+               (response) => {
+               console.log('result', response);
+               node.expanded = false;
+                node.code = response;
+
+                console.log(`Processed general file: ${node.name} at level ${level}`);
+                 // Stop the spinner after the response
+               },
+               (error) => {
+                console.error('Error during codegeneration:', error);
+
+                //this.isAnalyzing = false; // Stop the spinner even if there's an error
+                }
+               );
+
+            }
+            if(this.isdescribe)
+            {
+              console.log(`Processing general file: ${node.name}`);
+               this.apiService.Codesynthesis(node.name, node.content, 0,this.dataFlow,this.solutionOverview).subscribe(
+               (response) => {
+               console.log('result', response);
+               node.expanded = false;
+                node.code = response;
+
+                console.log(`Processed general file: ${node.name} at level ${level}`);
+                 // Stop the spinner after the response
+               },
+               (error) => {
+                console.error('Error during codegeneration:', error);
+
+                //this.isAnalyzing = false; // Stop the spinner even if there's an error
+                }
+               );
+               this.apiService.Codesynthesis(node.name, node.content, 3,this.dataFlow,this.solutionOverview).subscribe(
+                (response) => {
+                  console.log("result", response);
+                  node.expanded = false;
+                  node.description = response;
+                  console.log(`Processed UnitTest file: ${node.name} at level ${level}`);
+                  // Stop the spinner after the response
+                },
+                (error) => {
+                  console.error('Error during codegeneration:', error);
+                  //this.isAnalyzing = false; // Stop the spinner even if there's an error
+                }
+              );
+
+            }
+           console.log(`Processed general file: ${node.name} at level ${level}`);
+          }
+        }
+      
+        // Recursively traverse children
+        if (node.children) {
+          for (const child of node.children) {
+            this.traverseAndUpdateFolderStructure(child, level + 1, parentfolder);
+          }
+        }
+      }
 
   findFileByName(name: string, folderStructure: any[]): any {
     for (const folder of folderStructure) {
@@ -886,4 +1110,40 @@ export class AppComponent {
 
     return projects;
   }
+
+  downloadZip() 
+  {
+    this.downloadFolderStructure(this.codeSynthesisFolderStructure[0]);
+  }
+  public async downloadFolderStructure(folderStructure: any) 
+  {
+    const zip = new JSZip();
+    this.addFolderToZip(folderStructure, zip);
+    const content = await zip.generateAsync({ type: 'blob' });
+    saveAs(content, 'folder-structure.zip');
+  }
+
+  private addFolderToZip(folder: any, zip: JSZip, folderPath: string = '') 
+  {
+    if (folder.type === 'folder') {
+      const newFolderPath = folderPath
+        ? `${folderPath}/${folder.name}`
+        : folder.name;
+      folder.children.forEach((child: any) => {
+        this.addFolderToZip(child, zip, newFolderPath);
+      });
+    } else if (folder.type === 'file') {
+      // Add code file
+      if (folder.code) {
+        zip.file(`${folderPath}/${folder.name}`, folder.code);
+      }
+
+      // Add description file
+      if (folder.description) {
+        zip.file(`${folderPath}/${folder.name}.txt`, folder.description);
+      }
+    }
+  }
+
+
 }

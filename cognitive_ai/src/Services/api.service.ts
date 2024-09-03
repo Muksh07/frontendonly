@@ -11,10 +11,8 @@ export class ApiService {
 
   private apiUrl = 'http://localhost:5192/api/BRDAnalyzer/analyse';
   private apiurlsolidify = 'http://localhost:5192/api/BRDAnalyzer/solidify';
-  private apiurlBlueprinting =
-    'http://localhost:5192/api/BRDAnalyzer/BluePrinting';
-  private apiurlCodesynthesis =
-    'http://localhost:5192/api/BRDAnalyzer/CodeSynthesis';
+  private apiurlBlueprinting ='http://localhost:5192/api/BRDAnalyzer/BluePrinting';
+  private apiurlCodesynthesis ='http://localhost:5192/api/BRDAnalyzer/CodeSyn';
 
   APIanalyzeBRD(
     context: string,
@@ -54,30 +52,21 @@ export class ApiService {
     );
   }
 
-  // Codesynthesis(Filename: string, Filecontent:string, k:number): Observable<string>
-  // {
-  //   const requestBody = {
-  //     filename: Filename,
-  //     filecontent: Filecontent,
-  //     i: k
-  //   };
-  //   console.log("requestBody :", requestBody);
-  //   return this.http.post<string>(this.apiurlCodesynthesis, requestBody,{responseType: 'text' as 'json' });
-  // }
-  // Codesynthesis(folderstructure: any): Observable<any>
-  // {
-  //   const requestBody = {
-  //     FolderStructure : folderstructure} ;
-  //   console.log("requestBody :", requestBody);
-  //   return this.http.post<any>(this.apiurlCodesynthesis, requestBody,{responseType: 'text' as 'json' });
-  // }
-  Codesynthesis(folderstructure: any): Observable<any> {
+  Codesynthesis(Filename: string, Filecontent:string, k:number,DataFlow:string,solutionOver:string ): Observable<string>
+  {
     const requestBody = {
-      FolderStructure: folderstructure,
+      Filename: Filename,
+      FileContent: Filecontent,
+      i: k,
+      DataFlow:DataFlow,
+      SolutionOverview:solutionOver
     };
-    console.log('requestBody:', requestBody);
-    return this.http.post<any>(this.apiurlCodesynthesis, requestBody, {
-      responseType: 'text' as 'json',
-    });
+    console.log("requestBody :", requestBody);
+    return this.http.post<string>(this.apiurlCodesynthesis, requestBody, {responseType: 'text' as 'json' });
   }
+
+  // Codesynthesis(folderStructure: any): Observable<any> {
+  //   const url = this.apiurlCodesynthesis;
+  //  return this.http.post<any>(url, { FolderStructure: folderStructure });
+  // }
 }
